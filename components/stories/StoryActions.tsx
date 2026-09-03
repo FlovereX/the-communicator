@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/shared/Button";
 import { TextArea } from "@/components/shared/FormControls";
+import { useCurrentUser } from "@/lib/auth-context";
 import { useStories } from "@/lib/stories-store";
 import type { Story } from "@/lib/types";
 
@@ -19,6 +20,7 @@ export function StoryActions({
   onToggleEdit: () => void;
   onSaveDraft: () => void;
 }) {
+  const currentUser = useCurrentUser();
   const {
     startWriting,
     submitForReview,
@@ -31,18 +33,25 @@ export function StoryActions({
   const [isRequestingRevision, setIsRequestingRevision] = useState(false);
   const [revisionMessage, setRevisionMessage] = useState("");
 
-  const canStartWriting = story.status === "Idea" || story.status === "Assigned";
-  const canWrite = WRITER_EDITABLE_STATUSES.includes(story.status);
-  const canSubmit = story.status === "Writing";
-  const canResubmit = story.status === "Needs Revision";
+  // Mirrors the ownership/role/status checks enforced server-side by the workflow RPCs.
+  const isAssignedWriter = story.writerId === currentUser.id;
+  const isStaff = currentUser.role === "editor" || currentUser.role === "admin";
+
+  const canStartWriting =
+    isAssignedWriter && (story.status === "Idea" || story.status === "Assigned");
+  const canWrite = isAssignedWriter && WRITER_EDITABLE_STATUSES.includes(story.status);
+  const canSubmit = isAssignedWriter && story.status === "Writing";
+  const canResubmit = isAssignedWriter && story.status === "Needs Revision";
   const isAwaitingReview = story.status === "Submitted";
-  const canStartEditing = story.status === "Submitted";
-  const canRequestRevision = story.status === "Editing";
-  const canApprove = story.status === "Editing";
-  const canMarkPublished = story.status === "Approved";
+  const canStartEditing = isStaff && story.status === "Submitted";
+  const canStaffEdit = isStaff && story.status === "Editing";
+  const canRequestRevision = isStaff && story.status === "Editing";
+  const canApprove = isStaff && story.status === "Editing";
+  const canMarkPublished = isStaff && story.status === "Approved";
 
   const hasWriterActions = canStartWriting || canWrite || canSubmit || canResubmit || isAwaitingReview;
-  const hasEditorActions = canStartEditing || canRequestRevision || canApprove || canMarkPublished;
+  const hasEditorActions =
+    canStartEditing || canStaffEdit || canRequestRevision || canApprove || canMarkPublished;
 
   function handleSendRevision() {
     if (!revisionMessage.trim()) return;
@@ -110,6 +119,16 @@ export function StoryActions({
               <Button variant="secondary" onClick={() => startEditing(story.id)}>
                 Start Editing
               </Button>
+            ) : null}
+            {canStaffEdit ? (
+              <>
+                <Button variant={isEditing ? "primary" : "secondary"} onClick={onToggleEdit}>
+                  {isEditing ? "Done Editing" : "Edit Story"}
+                </Button>
+                <Button variant="secondary" onClick={onSaveDraft}>
+                  Save Draft
+                </Button>
+              </>
             ) : null}
             {canRequestRevision ? (
               <Button

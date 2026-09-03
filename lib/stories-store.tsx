@@ -197,52 +197,17 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
     [profiles]
   );
 
-  async function insertVersion(storyId: string, headline: string, body: string) {
+  /** Calls a workflow RPC and refreshes on success; surfaces the RPC's own error.message on failure. */
+  async function callWorkflowRpc(fn: string, params: Record<string, unknown>) {
     const supabase = createClient();
-    const current = stories.find((s) => s.id === storyId);
-    const nextVersionNumber = (current?.versions.length ?? 0) + 1;
-    const { error: versionError } = await supabase.from("story_versions").insert({
-      story_id: storyId,
-      version_number: nextVersionNumber,
-      headline,
-      body,
-      created_by: currentUser.id,
-    });
-    if (versionError) {
-      setError(versionError.message);
+    setError(null);
+    const { error: rpcError } = await supabase.rpc(fn, params);
+    if (rpcError) {
+      setError(rpcError.message);
       return false;
     }
+    await loadAll();
     return true;
-  }
-
-  async function updateStory(id: string, fields: Record<string, unknown>) {
-    const supabase = createClient();
-    setError(null);
-    const { error: updateError } = await supabase.from("stories").update(fields).eq("id", id);
-    if (updateError) {
-      setError(updateError.message);
-      return;
-    }
-    await loadAll();
-  }
-
-  /** Submitting/resubmitting captures a headline+body snapshot as a new story_versions row. */
-  async function submit(id: string) {
-    const story = stories.find((s) => s.id === id);
-    if (!story) return;
-    const supabase = createClient();
-    setError(null);
-    const { error: updateError } = await supabase
-      .from("stories")
-      .update({ status: STATUS_TO_DB.Submitted, submitted_at: new Date().toISOString() })
-      .eq("id", id);
-    if (updateError) {
-      setError(updateError.message);
-      return;
-    }
-    const ok = await insertVersion(id, story.title, story.body);
-    if (!ok) return;
-    await loadAll();
   }
 
 
@@ -287,37 +252,50 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
       },
       updateArticle: async (id, updates) => {
         const story = stories.find((s) => s.id === id);
-        const fields: Record<string, unknown> = {};
-        if (updates.title !== undefined) fields.headline = updates.title;
-        if (updates.body !== undefined) fields.body = updates.body;
-        if (story && (story.status === "Idea" || story.status === "Assigned")) {
-          fields.status = STATUS_TO_DB.Writing;
-        }
-        await updateStory(id, fields);
+        const headline = updates.title ?? story?.title ?? "";
+        const body = updates.body ?? story?.body ?? "";
+        await callWorkflowRpc("save_story_draft", {
+          p_story_id: id,
+          p_headline: headline,
+          p_body: body,
+        });
       },
-      startWriting: (id) => updateStory(id, { status: STATUS_TO_DB.Writing }),
-      submitForReview: (id) => submit(id),
-      resubmit: (id) => submit(id),
-      startEditing: (id) => updateStory(id, { status: STATUS_TO_DB.Editing }),
+      startWriting: async (id) => {
+        await callWorkflowRpc("start_writing", { p_story_id: id });
+      },
+      submitForReview: async (id) => {
+        const story = stories.find((s) => s.id === id);
+        if (!story) return;
+        await callWorkflowRpc("submit_story", {
+          p_story_id: id,
+          p_headline: story.title,
+          p_body: story.body,
+        });
+      },
+      resubmit: async (id) => {
+        const story = stories.find((s) => s.id === id);
+        if (!story) return;
+        await callWorkflowRpc("submit_story", {
+          p_story_id: id,
+          p_headline: story.title,
+          p_body: story.body,
+        });
+      },
+      startEditing: async (id) => {
+        await callWorkflowRpc("start_editing", { p_story_id: id });
+      },
       requestRevision: async (id, message) => {
-        const supabase = createClient();
-        setError(null);
-        const { error: feedbackError } = await supabase
-          .from("story_feedback")
-          .insert({ story_id: id, created_by: currentUser.id, message });
-        if (feedbackError) {
-          setError(feedbackError.message);
-          return;
-        }
-        await updateStory(id, { status: STATUS_TO_DB["Needs Revision"] });
+        await callWorkflowRpc("request_revision", {
+          p_story_id: id,
+          p_feedback_message: message,
+        });
       },
-      approveStory: (id) =>
-        updateStory(id, { status: STATUS_TO_DB.Approved, approved_at: new Date().toISOString() }),
-      markPublished: (id) =>
-        updateStory(id, {
-          status: STATUS_TO_DB.Published,
-          published_at: new Date().toISOString(),
-        }),
+      approveStory: async (id) => {
+        await callWorkflowRpc("approve_story", { p_story_id: id });
+      },
+      markPublished: async (id) => {
+        await callWorkflowRpc("mark_published", { p_story_id: id });
+      },
       addSource: async (id, source) => {
         const supabase = createClient();
         setError(null);
