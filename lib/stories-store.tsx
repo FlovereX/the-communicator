@@ -12,7 +12,7 @@ import {
 import { useCurrentUser } from "./auth-context";
 import type { NewsroomSection } from "./sections";
 import { createClient } from "./supabase/client";
-import { mapStoryRow, STATUS_TO_DB } from "./supabase/mappers";
+import { mapStoryRow } from "./supabase/mappers";
 import { buildStoragePath, SIGNED_URL_TTL_SECONDS, STORY_MEDIA_BUCKET, validateMediaFile } from "./supabase/storage";
 import type { ProfileRow, StoryFeedbackRow, StoryMediaRow, StoryRow, StorySourceRow, StoryVersionRow } from "./supabase/types";
 import type { MediaItem, Source, Story } from "./types";
@@ -224,29 +224,20 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
       getStory: (id) => stories.find((story) => story.id === id),
       addStory: async (input) => {
         const supabase = createClient();
-        // .select().single() makes Postgres return the actual inserted row (with its real id)
-        // instead of an empty response, so navigation never has to guess the new story's id.
-        const { data, error: insertError } = await supabase
-          .from("stories")
-          .insert({
-            headline: input.title,
-            section: input.section,
-            writer_id: input.writerId,
-            editor_id: input.editorId,
-            deadline: input.dueDate,
-            assignment_notes: input.assignmentNotes ?? null,
-            created_by: currentUser.id,
-            status: STATUS_TO_DB.Assigned,
-            body: "",
-          })
-          .select("*")
-          .single();
-        if (insertError || !data) {
-          return { ok: false, error: insertError?.message ?? "Could not create the story." };
+        const { data, error: rpcError } = await supabase.rpc("create_story", {
+          p_headline: input.title,
+          p_section: input.section,
+          p_writer_id: input.writerId,
+          p_editor_id: input.editorId,
+          p_deadline: input.dueDate,
+          p_assignment_notes: input.assignmentNotes ?? null,
+        });
+        if (rpcError || !data) {
+          return { ok: false, error: rpcError?.message ?? "Could not create the story." };
         }
-        const storyId: string = data.id;
-        // Refetching can happen after creation, but the id used for navigation comes from
-        // the insert response above, never from this (or any prior) list state.
+        // The id used for navigation comes straight from the RPC response, never from
+        // this (or any prior) list state.
+        const storyId: string = Array.isArray(data) ? data[0].id : data.id;
         await loadAll();
         return { ok: true, storyId };
       },

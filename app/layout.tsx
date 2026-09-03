@@ -35,7 +35,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       .select("*")
       .eq("id", user.id)
       .single();
-    if (profile) {
+    if (profile && profile.status === "active") {
       currentUser = mapProfileToCurrentUser(profile);
     }
   }

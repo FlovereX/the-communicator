@@ -6,6 +6,7 @@ import {
   PitchesIcon,
   ReviewQueueIcon,
   StoriesIcon,
+  UsersIcon,
 } from "@/components/icons";
 
 export interface NavItem {
@@ -25,3 +26,6 @@ export const mainNavItems: NavItem[] = [
 export const editorNavItems: NavItem[] = [
   { label: "Review Queue", href: "/review", icon: ReviewQueueIcon },
 ];
+
+export const adminNavItems: NavItem[] = [{ label: "Users", href: "/admin/users", icon: UsersIcon }];
+

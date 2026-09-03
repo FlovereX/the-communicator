@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/icons";
 import { useCurrentUser } from "@/lib/auth-context";
-import { editorNavItems, mainNavItems, type NavItem } from "@/lib/navigation";
+import { adminNavItems, editorNavItems, mainNavItems, type NavItem } from "@/lib/navigation";
 import { signOut } from "@/lib/supabase/actions";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +59,7 @@ function SidebarNav({
   const currentUser = useCurrentUser();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const showEditorSection = currentUser.role !== "writer";
+  const showAdminSection = currentUser.role === "admin";
 
   return (
     <nav className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-3 pb-4">
@@ -78,6 +79,21 @@ function SidebarNav({
             EDITOR
           </p>
           {editorNavItems.map((item) => (
+            <NavLink
+              key={item.href}
+              item={item}
+              active={isActive(item.href)}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+      ) : null}
+      {showAdminSection ? (
+        <div className="flex flex-col gap-1">
+          <p className="px-3 pb-1 text-[11px] font-semibold tracking-[0.15em] text-foreground/40">
+            ADMIN
+          </p>
+          {adminNavItems.map((item) => (
             <NavLink
               key={item.href}
               item={item}

@@ -5,6 +5,8 @@
 
 export type ProfileRole = "writer" | "editor" | "admin";
 
+export type AccountStatus = "pending" | "active" | "rejected" | "disabled";
+
 export type DbStoryStatus =
   | "idea"
   | "assigned"
@@ -20,6 +22,7 @@ export interface ProfileRow {
   email: string;
   full_name: string;
   role: ProfileRole;
+  status: AccountStatus;
   avatar_url: string | null;
   created_at: string;
 }

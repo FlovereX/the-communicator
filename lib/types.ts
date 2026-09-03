@@ -1,3 +1,4 @@
+import type { AccountStatus } from "./supabase/types";
 import type { NewsroomSection } from "./sections";
 
 export const STORY_STATUSES = [
@@ -106,5 +107,6 @@ export interface CurrentUser {
   name: string;
   email: string;
   role: UserRole;
+  status: AccountStatus;
   avatarUrl: string | null;
 }

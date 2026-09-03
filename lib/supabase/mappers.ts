@@ -51,6 +51,7 @@ export function mapProfileToCurrentUser(profile: ProfileRow): CurrentUser {
     name: profile.full_name,
     email: profile.email,
     role: profile.role,
+    status: profile.status,
     avatarUrl: profile.avatar_url,
   };
 }
