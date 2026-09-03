@@ -87,4 +87,22 @@ export interface StoryMediaRow {
   created_at: string;
 }
 
+export type DbPitchStatus = "submitted" | "approved" | "rejected";
+
+export interface PitchRow {
+  id: string;
+  title: string;
+  section: string;
+  summary: string;
+  why_it_matters: string;
+  possible_sources: string | null;
+  submitted_by: string;
+  status: DbPitchStatus;
+  editor_feedback: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  story_id: string | null;
+  created_at: string;
+}
+
 

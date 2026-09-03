@@ -66,14 +66,23 @@ export interface Story {
 }
 
 
+export type PitchStatus = "Submitted" | "Approved" | "Rejected";
+
 export interface Pitch {
   id: string;
   title: string;
   section: NewsroomSection;
-  submittedBy: string;
-  submittedDate: string;
-  status: "Pending" | "Approved" | "Rejected";
   summary: string;
+  whyItMatters: string;
+  possibleSources: string | null;
+  submittedBy: string;
+  submittedById: string;
+  status: PitchStatus;
+  editorFeedback: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  storyId: string | null;
+  createdAt: string;
 }
 
 export interface Issue {

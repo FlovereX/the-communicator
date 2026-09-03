@@ -1,5 +1,7 @@
 import type {
+  DbPitchStatus,
   DbStoryStatus,
+  PitchRow,
   ProfileRow,
   StoryFeedbackRow,
   StoryMediaRow,
@@ -11,6 +13,8 @@ import type {
   CurrentUser,
   FeedbackEntry,
   MediaItem,
+  Pitch,
+  PitchStatus,
   Source,
   Story,
   StoryStatus,
@@ -37,6 +41,12 @@ export const STATUS_FROM_DB: Record<DbStoryStatus, StoryStatus> = {
   needs_revision: "Needs Revision",
   approved: "Approved",
   published: "Published",
+};
+
+export const PITCH_STATUS_FROM_DB: Record<DbPitchStatus, PitchStatus> = {
+  submitted: "Submitted",
+  approved: "Approved",
+  rejected: "Rejected",
 };
 
 function countWords(body: string | null) {
@@ -131,5 +141,25 @@ export function mapStoryRow(
     media,
     feedback,
     versions,
+  };
+}
+
+/** Maps a pitches row into the UI-facing `Pitch` shape, resolving profile ids to display names. */
+export function mapPitchRow(row: PitchRow, profilesById: Map<string, ProfileRow>): Pitch {
+  return {
+    id: row.id,
+    title: row.title,
+    section: row.section as Pitch["section"],
+    summary: row.summary,
+    whyItMatters: row.why_it_matters,
+    possibleSources: row.possible_sources,
+    submittedBy: profilesById.get(row.submitted_by)?.full_name ?? "Unknown",
+    submittedById: row.submitted_by,
+    status: PITCH_STATUS_FROM_DB[row.status],
+    editorFeedback: row.editor_feedback,
+    reviewedBy: row.reviewed_by ? (profilesById.get(row.reviewed_by)?.full_name ?? null) : null,
+    reviewedAt: row.reviewed_at,
+    storyId: row.story_id,
+    createdAt: row.created_at,
   };
 }
