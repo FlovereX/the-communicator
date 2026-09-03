@@ -1,4 +1,5 @@
 import type {
+  CalendarEventRow,
   DbPitchStatus,
   DbStoryStatus,
   NotificationRow,
@@ -11,6 +12,7 @@ import type {
   StoryVersionRow,
 } from "./types";
 import type {
+  CalendarEvent,
   CurrentUser,
   FeedbackEntry,
   MediaItem,
@@ -180,5 +182,21 @@ export function mapNotificationRow(row: NotificationRow): Notification {
     actorId: row.actor_id,
     readAt: row.read_at,
     createdAt: row.created_at,
+  };
+}
+
+/** Maps a calendar_events row into the UI-facing `CalendarEvent` shape. */
+export function mapCalendarEventRow(row: CalendarEventRow): CalendarEvent {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    eventType: row.event_type,
+    startAt: row.start_at,
+    endAt: row.end_at,
+    location: row.location,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }

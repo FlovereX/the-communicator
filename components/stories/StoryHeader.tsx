@@ -24,7 +24,10 @@ export function StoryHeader({ story }: { story: Story }) {
         <MetaItem label="Section" value={story.section} />
         <MetaItem label="Writer" value={story.writer} />
         <MetaItem label="Editor" value={story.editor} />
-        <MetaItem label="Deadline" value={formatDueDate(story.dueDate)} />
+        <MetaItem
+          label="Deadline"
+          value={story.dueDate ? formatDueDate(story.dueDate) : "No deadline"}
+        />
       </div>
     </div>
   );

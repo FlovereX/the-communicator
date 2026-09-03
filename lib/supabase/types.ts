@@ -35,7 +35,7 @@ export interface StoryRow {
   status: DbStoryStatus;
   writer_id: string | null;
   editor_id: string | null;
-  deadline: string;
+  deadline: string | null;
   assignment_notes: string | null;
   created_by: string | null;
   submitted_at: string | null;
@@ -123,6 +123,21 @@ export interface NotificationRow {
   actor_id: string | null;
   read_at: string | null;
   created_at: string;
+}
+
+export type CalendarEventType = "coverage" | "newsroom";
+
+export interface CalendarEventRow {
+  id: string;
+  title: string;
+  description: string | null;
+  event_type: CalendarEventType;
+  start_at: string;
+  end_at: string | null;
+  location: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 

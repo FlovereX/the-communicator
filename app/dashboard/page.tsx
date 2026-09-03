@@ -35,7 +35,10 @@ export default function DashboardPage() {
   const deadlines = useMemo(
     () =>
       [...stories]
-        .filter((s) => s.status !== "Published")
+        .filter(
+          (s): s is (typeof stories)[number] & { dueDate: string } =>
+            s.status !== "Published" && s.dueDate !== null
+        )
         .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
         .slice(0, 5),
     [stories]

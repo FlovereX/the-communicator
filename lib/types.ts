@@ -1,4 +1,4 @@
-import type { AccountStatus, NotificationType } from "./supabase/types";
+import type { AccountStatus, CalendarEventType, NotificationType } from "./supabase/types";
 import type { NewsroomSection } from "./sections";
 
 export const STORY_STATUSES = [
@@ -54,7 +54,7 @@ export interface Story {
   writerId: string | null;
   editor: string;
   editorId: string | null;
-  dueDate: string;
+  dueDate: string | null;
   status: StoryStatus;
   wordCount?: number;
   body: string;
@@ -133,3 +133,39 @@ export interface DeadlineReminder {
   title: string;
   message: string;
 }
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  eventType: CalendarEventType;
+  startAt: string;
+  endAt: string | null;
+  location: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Unified shape rendered by the Calendar's month grid, day panel, and upcoming list. */
+export type CalendarItem =
+  | {
+      kind: "deadline";
+      id: string;
+      date: string;
+      storyId: string;
+      title: string;
+      section: string;
+      status: StoryStatus;
+    }
+  | {
+      kind: "coverage" | "newsroom";
+      id: string;
+      date: string;
+      eventId: string;
+      title: string;
+      startAt: string;
+      endAt: string | null;
+      location: string | null;
+      description: string | null;
+    };

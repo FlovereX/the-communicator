@@ -24,7 +24,8 @@ export function AssignmentsList({
             <div>
               <p className="text-sm font-medium text-foreground">{story.title}</p>
               <p className="mt-0.5 text-xs text-foreground/50">
-                {story.section} &middot; Due {formatDueDate(story.dueDate)}
+                {story.section} &middot;{" "}
+                {story.dueDate ? `Due ${formatDueDate(story.dueDate)}` : "No deadline"}
               </p>
             </div>
             <StatusBadge status={story.status} />
