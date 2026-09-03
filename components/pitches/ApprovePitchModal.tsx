@@ -7,7 +7,7 @@ import { Label, Select, TextArea, TextInput } from "@/components/shared/FormCont
 import { Modal } from "@/components/shared/Modal";
 import { usePitches } from "@/lib/pitches-store";
 import { useStories } from "@/lib/stories-store";
-import { capitalize } from "@/lib/utils";
+import { capitalize, disambiguateNames } from "@/lib/utils";
 import type { Pitch } from "@/lib/types";
 
 export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: () => void }) {
@@ -20,7 +20,12 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const isValid = editorId && deadline;
+  // Falls back to unselected if the chosen editor is no longer active (instead of
+  // trusting stale state) — matches the same pattern used in NewStoryModal.
+  const selectedEditorId = editors.some((e) => e.id === editorId) ? editorId : "";
+  const editorLabels = disambiguateNames(editors);
+
+  const isValid = selectedEditorId && deadline;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,7 +34,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
     setFormError(null);
     const result = await approvePitch({
       pitchId: pitch.id,
-      editorId,
+      editorId: selectedEditorId,
       deadline,
       assignmentNotes: assignmentNotes.trim() || undefined,
     });
@@ -52,7 +57,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
           <Label htmlFor="approve-pitch-editor">Assigned editor</Label>
           <Select
             id="approve-pitch-editor"
-            value={editorId}
+            value={selectedEditorId}
             onChange={(e) => setEditorId(e.target.value)}
             disabled={editors.length === 0}
             required
@@ -60,7 +65,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
             <option value="">Select an editor</option>
             {editors.map((editor) => (
               <option key={editor.id} value={editor.id}>
-                {editor.name} ({capitalize(editor.role)})
+                {editorLabels.get(editor.id)} ({capitalize(editor.role)})
               </option>
             ))}
           </Select>

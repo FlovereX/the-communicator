@@ -9,7 +9,7 @@ import { useCalendarEvents, type CalendarEventInput } from "@/lib/calendar-event
 import type { CalendarEventType, CoverageStatus } from "@/lib/supabase/types";
 import type { CalendarEvent } from "@/lib/types";
 import { useStories } from "@/lib/stories-store";
-import { capitalize } from "@/lib/utils";
+import { capitalize, disambiguateNames } from "@/lib/utils";
 
 const EVENT_TYPE_OPTIONS: { value: CalendarEventType; label: string }[] = [
   { value: "coverage", label: "Coverage" },
@@ -56,12 +56,16 @@ export function CalendarEventModal({
   const [formError, setFormError] = useState<string | null>(null);
 
   const isValid = Boolean(title.trim() && eventType && date && startTime);
-  const assignableUsers = writers.filter((w) => w.status === "active");
+  // `writers` is already active-profile-only; drop any previously-selected id that's
+  // no longer valid (e.g. the profile was disabled while this modal was open) instead
+  // of trusting stale state.
+  const validAssigneeIds = assigneeIds.filter((id) => writers.some((w) => w.id === id));
+  const assigneeLabels = disambiguateNames(writers);
 
   function toggleAssignee(userId: string) {
-    const nextAssigneeIds = assigneeIds.includes(userId)
-      ? assigneeIds.filter((id) => id !== userId)
-      : [...assigneeIds, userId];
+    const nextAssigneeIds = validAssigneeIds.includes(userId)
+      ? validAssigneeIds.filter((id) => id !== userId)
+      : [...validAssigneeIds, userId];
     setAssigneeIds(nextAssigneeIds);
     if (nextAssigneeIds.length > 0 && coverageStatus === "unassigned") {
       setCoverageStatus("assigned");
@@ -86,7 +90,7 @@ export function CalendarEventModal({
     };
     if (eventType === "coverage") {
       input.coverageStatus = coverageStatus;
-      input.assigneeIds = assigneeIds;
+      input.assigneeIds = validAssigneeIds;
     } else if (event?.eventType === "coverage") {
       // Switched away from coverage — clear any prior assignment state.
       input.coverageStatus = "unassigned";
@@ -233,22 +237,22 @@ export function CalendarEventModal({
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Assigned To</Label>
-                {assignableUsers.length === 0 ? (
+                {writers.length === 0 ? (
                   <p className="text-xs text-foreground/50">No active newsroom users available.</p>
                 ) : (
                   <div className="flex max-h-32 flex-col gap-0.5 overflow-y-auto rounded-lg border border-border p-1.5">
-                    {assignableUsers.map((user) => (
+                    {writers.map((user) => (
                       <label
                         key={user.id}
                         className="flex items-center gap-2 rounded px-1.5 py-1 text-sm text-foreground hover:bg-background/60"
                       >
                         <input
                           type="checkbox"
-                          checked={assigneeIds.includes(user.id)}
+                          checked={validAssigneeIds.includes(user.id)}
                           onChange={() => toggleAssignee(user.id)}
                           className="h-4 w-4 rounded border-border text-navy focus:ring-navy"
                         />
-                        <span className="truncate">{user.name}</span>
+                        <span className="truncate">{assigneeLabels.get(user.id)}</span>
                         <span className="text-xs text-foreground/40">({capitalize(user.role)})</span>
                       </label>
                     ))}

@@ -7,7 +7,7 @@ import { Label, Select, TextArea, TextInput } from "@/components/shared/FormCont
 import { Modal } from "@/components/shared/Modal";
 import { NEWSROOM_SECTIONS, type NewsroomSection } from "@/lib/sections";
 import { useStories } from "@/lib/stories-store";
-import { capitalize } from "@/lib/utils";
+import { capitalize, disambiguateNames } from "@/lib/utils";
 
 export function NewStoryModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -21,7 +21,14 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const isValid = title.trim() && section && writerId && editorId && dueDate;
+  // Falls back to unselected if the chosen profile is no longer an active option
+  // (e.g. it was disabled while this modal was open) instead of trusting stale state.
+  const selectedWriterId = writers.some((w) => w.id === writerId) ? writerId : "";
+  const selectedEditorId = editors.some((e) => e.id === editorId) ? editorId : "";
+  const writerLabels = disambiguateNames(writers);
+  const editorLabels = disambiguateNames(editors);
+
+  const isValid = title.trim() && section && selectedWriterId && selectedEditorId && dueDate;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,8 +39,8 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
     const result = await addStory({
       title: title.trim(),
       section,
-      writerId,
-      editorId,
+      writerId: selectedWriterId,
+      editorId: selectedEditorId,
       dueDate,
       assignmentNotes: assignmentNotes.trim() || undefined,
     });
@@ -90,7 +97,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
             <Label htmlFor="new-story-writer">Writer</Label>
             <Select
               id="new-story-writer"
-              value={writerId}
+              value={selectedWriterId}
               onChange={(e) => setWriterId(e.target.value)}
               disabled={writers.length === 0}
               required
@@ -98,7 +105,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
               <option value="">Select a writer</option>
               {writers.map((writer) => (
                 <option key={writer.id} value={writer.id}>
-                  {writer.name} ({capitalize(writer.role)})
+                  {writerLabels.get(writer.id)} ({capitalize(writer.role)})
                 </option>
               ))}
             </Select>
@@ -112,7 +119,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
             <Label htmlFor="new-story-editor">Editor</Label>
             <Select
               id="new-story-editor"
-              value={editorId}
+              value={selectedEditorId}
               onChange={(e) => setEditorId(e.target.value)}
               disabled={editors.length === 0}
               required
@@ -120,7 +127,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
               <option value="">Select an editor</option>
               {editors.map((editor) => (
                 <option key={editor.id} value={editor.id}>
-                  {editor.name} ({capitalize(editor.role)})
+                  {editorLabels.get(editor.id)} ({capitalize(editor.role)})
                 </option>
               ))}
             </Select>

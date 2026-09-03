@@ -29,6 +29,7 @@ export interface NewStoryInput {
 export interface StaffProfile {
   id: string;
   name: string;
+  email: string;
   role: ProfileRow["role"];
   status: ProfileRow["status"];
 }
@@ -189,16 +190,20 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
   }, [fetchStoriesData]);
 
 
-  // Any staff member (writer, editor, or admin) may be assigned as a story's writer.
+  // Any ACTIVE staff member (writer, editor, or admin) may be assigned as a story's writer.
+  // Inactive (pending/rejected/disabled) profiles must never be offered for new assignments.
   const writers = useMemo(
-    () => profiles.map((p) => ({ id: p.id, name: p.full_name, role: p.role, status: p.status })),
+    () =>
+      profiles
+        .filter((p) => p.status === "active")
+        .map((p) => ({ id: p.id, name: p.full_name, email: p.email, role: p.role, status: p.status })),
     [profiles]
   );
   const editors = useMemo(
     () =>
       profiles
-        .filter((p) => p.role === "editor" || p.role === "admin")
-        .map((p) => ({ id: p.id, name: p.full_name, role: p.role, status: p.status })),
+        .filter((p) => p.status === "active" && (p.role === "editor" || p.role === "admin"))
+        .map((p) => ({ id: p.id, name: p.full_name, email: p.email, role: p.role, status: p.status })),
     [profiles]
   );
 
