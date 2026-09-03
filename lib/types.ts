@@ -1,4 +1,4 @@
-import type { AccountStatus } from "./supabase/types";
+import type { AccountStatus, NotificationType } from "./supabase/types";
 import type { NewsroomSection } from "./sections";
 
 export const STORY_STATUSES = [
@@ -87,14 +87,6 @@ export interface Pitch {
   createdAt: string;
 }
 
-export interface Issue {
-  id: string;
-  name: string;
-  publishDate: string;
-  status: "Planning" | "In Progress" | "In Review" | "Published";
-  storyCount: number;
-}
-
 export type ActivityType = "revision" | "assignment" | "draft" | "approval" | "submission";
 
 export interface ActivityItem {
@@ -120,4 +112,24 @@ export interface CurrentUser {
   role: UserRole;
   status: AccountStatus;
   avatarUrl: string | null;
+}
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  storyId: string | null;
+  pitchId: string | null;
+  actorId: string | null;
+  readAt: string | null;
+  createdAt: string;
+}
+
+/** Client-only — derived from StoriesProvider data, never persisted. */
+export interface DeadlineReminder {
+  id: string;
+  storyId: string;
+  title: string;
+  message: string;
 }

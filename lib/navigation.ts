@@ -2,7 +2,6 @@ import type { ComponentType, SVGProps } from "react";
 import {
   CalendarIcon,
   DashboardIcon,
-  IssuesIcon,
   PitchesIcon,
   ReviewQueueIcon,
   StoriesIcon,
@@ -19,7 +18,6 @@ export const mainNavItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: DashboardIcon },
   { label: "Stories", href: "/stories", icon: StoriesIcon },
   { label: "Pitches", href: "/pitches", icon: PitchesIcon },
-  { label: "Issues", href: "/issues", icon: IssuesIcon },
   { label: "Calendar", href: "/calendar", icon: CalendarIcon },
 ];
 

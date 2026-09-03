@@ -42,16 +42,6 @@ export function PitchesIcon(props: IconProps) {
   );
 }
 
-export function IssuesIcon(props: IconProps) {
-  return (
-    <svg {...base} {...props}>
-      <path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H17a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" />
-      <path d="M19 17H6a2 2 0 0 0-2 2" />
-      <path d="M8 7h7M8 11h7" />
-    </svg>
-  );
-}
-
 export function CalendarIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
@@ -121,6 +111,15 @@ export function UsersIcon(props: IconProps) {
       <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
       <circle cx="17" cy="8" r="2.5" />
       <path d="M15.5 14c2.6.4 4.5 2.6 4.5 5.5" />
+    </svg>
+  );
+}
+
+export function BellIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6 8a6 6 0 0 1 12 0c0 3.5 1 5.5 2 6.5H4c1-1 2-3 2-6.5Z" />
+      <path d="M10 18a2 2 0 0 0 4 0" />
     </svg>
   );
 }

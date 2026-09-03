@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Sidebar } from "@/components/navigation/Sidebar";
 import { CurrentUserProvider } from "@/lib/auth-context";
+import { NotificationsProvider } from "@/lib/notifications-store";
 import { StoriesProvider } from "@/lib/stories-store";
 import { createClient } from "@/lib/supabase/server";
 import { mapProfileToCurrentUser } from "@/lib/supabase/mappers";
@@ -49,12 +51,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         {currentUser ? (
           <CurrentUserProvider user={currentUser}>
             <StoriesProvider>
-              <Sidebar />
-              <div className="flex min-h-full flex-col md:pl-64">
-                <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 md:px-10 md:py-10">
-                  {children}
-                </main>
-              </div>
+              <NotificationsProvider>
+                <Sidebar />
+                <div className="flex min-h-full flex-col md:pl-64">
+                  <div className="sticky top-0 z-20 hidden items-center justify-end border-b border-border bg-surface px-6 py-2.5 md:flex">
+                    <NotificationBell />
+                  </div>
+                  <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 md:px-10 md:py-10">
+                    {children}
+                  </main>
+                </div>
+              </NotificationsProvider>
             </StoriesProvider>
           </CurrentUserProvider>
         ) : (

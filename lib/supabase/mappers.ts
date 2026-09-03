@@ -1,6 +1,7 @@
 import type {
   DbPitchStatus,
   DbStoryStatus,
+  NotificationRow,
   PitchRow,
   ProfileRow,
   StoryFeedbackRow,
@@ -13,6 +14,7 @@ import type {
   CurrentUser,
   FeedbackEntry,
   MediaItem,
+  Notification,
   Pitch,
   PitchStatus,
   Source,
@@ -162,6 +164,21 @@ export function mapPitchRow(row: PitchRow, profilesById: Map<string, ProfileRow>
     reviewedBy: row.reviewed_by ? (profilesById.get(row.reviewed_by)?.full_name ?? null) : null,
     reviewedAt: row.reviewed_at,
     storyId: row.story_id,
+    createdAt: row.created_at,
+  };
+}
+
+/** Maps a notifications row into the UI-facing `Notification` shape. */
+export function mapNotificationRow(row: NotificationRow): Notification {
+  return {
+    id: row.id,
+    type: row.type,
+    title: row.title,
+    message: row.message,
+    storyId: row.story_id,
+    pitchId: row.pitch_id,
+    actorId: row.actor_id,
+    readAt: row.read_at,
     createdAt: row.created_at,
   };
 }

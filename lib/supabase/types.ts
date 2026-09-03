@@ -106,4 +106,23 @@ export interface PitchRow {
   created_at: string;
 }
 
+export type NotificationType =
+  | "story_assigned"
+  | "pitch_rejected"
+  | "revision_requested"
+  | "story_approved";
+
+export interface NotificationRow {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  story_id: string | null;
+  pitch_id: string | null;
+  actor_id: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
 

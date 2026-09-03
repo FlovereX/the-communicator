@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/icons";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useCurrentUser } from "@/lib/auth-context";
 import { adminNavItems, editorNavItems, mainNavItems, type NavItem } from "@/lib/navigation";
 import { signOut } from "@/lib/supabase/actions";
@@ -153,14 +154,17 @@ export function Sidebar() {
             NEWSROOM
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          aria-label="Open navigation menu"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground/70"
-        >
-          <MenuIcon className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button
+            type="button"
+            onClick={() => setIsOpen(true)}
+            aria-label="Open navigation menu"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-foreground/70"
+          >
+            <MenuIcon className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       {isOpen ? (
