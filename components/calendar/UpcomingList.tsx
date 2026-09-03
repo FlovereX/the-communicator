@@ -23,7 +23,15 @@ function formatItemMeta(item: CalendarItem) {
   return EVENT_TIME_FORMATTER.format(new Date(item.startAt));
 }
 
-export function UpcomingList({ items }: { items: CalendarItem[] }) {
+export function UpcomingList({
+  items,
+  title = "Upcoming",
+  emptyLabel = "Nothing coming up.",
+}: {
+  items: CalendarItem[];
+  title?: string;
+  emptyLabel?: string;
+}) {
   const router = useRouter();
 
   function handleClick(item: CalendarItem) {
@@ -33,7 +41,7 @@ export function UpcomingList({ items }: { items: CalendarItem[] }) {
   return (
     <div className="h-fit rounded-xl border border-border bg-surface shadow-sm">
       <div className="border-b border-border px-5 py-4">
-        <p className="font-serif text-base font-semibold text-foreground">Upcoming</p>
+        <p className="font-serif text-base font-semibold text-foreground">{title}</p>
       </div>
       <ul className="divide-y divide-border">
         {items.map((item) => (
@@ -58,7 +66,7 @@ export function UpcomingList({ items }: { items: CalendarItem[] }) {
           </li>
         ))}
         {items.length === 0 ? (
-          <li className="px-5 py-6 text-sm text-foreground/50">Nothing coming up.</li>
+          <li className="px-5 py-6 text-sm text-foreground/50">{emptyLabel}</li>
         ) : null}
       </ul>
     </div>

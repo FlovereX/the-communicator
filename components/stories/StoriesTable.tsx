@@ -22,6 +22,13 @@ export function StoriesTable({ stories }: { stories: Story[] }) {
     router.push(`/stories/${storyId}`);
   }
 
+  function handleRowKeyDown(event: React.KeyboardEvent<HTMLTableRowElement>, storyId: string) {
+    if ((event.target as HTMLElement).closest(INTERACTIVE_SELECTOR)) return;
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    router.push(`/stories/${storyId}`);
+  }
+
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
       <table className="w-full text-left text-sm">
@@ -39,8 +46,10 @@ export function StoriesTable({ stories }: { stories: Story[] }) {
           {stories.map((story) => (
             <tr
               key={story.id}
+              tabIndex={0}
               onClick={(event) => handleRowClick(event, story.id)}
-              className="group cursor-pointer hover:bg-background/60"
+              onKeyDown={(event) => handleRowKeyDown(event, story.id)}
+              className="group cursor-pointer hover:bg-background/60 focus:outline-none focus-visible:bg-background/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy"
             >
               <td className="px-5 py-3.5 font-medium text-foreground">
                 <Link href={`/stories/${story.id}`} className="group-hover:underline">

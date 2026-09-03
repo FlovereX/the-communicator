@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/shared/Button";
 import { Label, TextInput } from "@/components/shared/FormControls";
 import { createClient } from "@/lib/supabase/client";
+import { getAuthConfirmUrl } from "@/lib/site-url";
 import { login, type LoginState } from "./actions";
 
 const INITIAL_STATE: LoginState = {};
@@ -26,7 +27,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
       email: magicEmail.trim(),
       options: {
         shouldCreateUser: false,
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        emailRedirectTo: getAuthConfirmUrl(),
       },
     });
     setIsSendingLink(false);

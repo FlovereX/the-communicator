@@ -12,8 +12,9 @@ const VARIANTS = {
 
 export function Button({
   variant = "secondary",
+  type = "button",
   className,
   ...rest
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof VARIANTS }) {
-  return <button className={cn(BASE, VARIANTS[variant], className)} {...rest} />;
+  return <button type={type} className={cn(BASE, VARIANTS[variant], className)} {...rest} />;
 }

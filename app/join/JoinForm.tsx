@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/shared/Button";
 import { Label, TextInput } from "@/components/shared/FormControls";
 import { createClient } from "@/lib/supabase/client";
+import { getAuthConfirmUrl } from "@/lib/site-url";
 
 export function JoinForm() {
   const [fullName, setFullName] = useState("");
@@ -22,7 +23,7 @@ export function JoinForm() {
       email: email.trim(),
       options: {
         data: { full_name: fullName.trim() },
-        emailRedirectTo: `${window.location.origin}/auth/confirm`,
+        emailRedirectTo: getAuthConfirmUrl(),
       },
     });
     setIsSubmitting(false);

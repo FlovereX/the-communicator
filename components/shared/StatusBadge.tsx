@@ -1,4 +1,4 @@
-import type { StoryStatus } from "@/lib/types";
+import type { Pitch, StoryStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLES: Record<StoryStatus, string> = {
@@ -18,6 +18,25 @@ export function StatusBadge({ status }: { status: StoryStatus }) {
       className={cn(
         "inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium",
         STATUS_STYLES[status]
+      )}
+    >
+      {status}
+    </span>
+  );
+}
+
+const PITCH_STATUS_STYLES: Record<Pitch["status"], string> = {
+  Submitted: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  Approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Rejected: "bg-red-50 text-red-700 border-red-200",
+};
+
+export function PitchStatusBadge({ status }: { status: Pitch["status"] }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium",
+        PITCH_STATUS_STYLES[status]
       )}
     >
       {status}
