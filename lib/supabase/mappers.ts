@@ -13,6 +13,7 @@ import type {
 } from "./types";
 import type {
   CalendarEvent,
+  CalendarEventAssignee,
   CurrentUser,
   FeedbackEntry,
   MediaItem,
@@ -187,7 +188,10 @@ export function mapNotificationRow(row: NotificationRow): Notification {
 }
 
 /** Maps a calendar_events row into the UI-facing `CalendarEvent` shape. */
-export function mapCalendarEventRow(row: CalendarEventRow): CalendarEvent {
+export function mapCalendarEventRow(
+  row: CalendarEventRow,
+  assignees: CalendarEventAssignee[]
+): CalendarEvent {
   return {
     id: row.id,
     title: row.title,
@@ -196,6 +200,8 @@ export function mapCalendarEventRow(row: CalendarEventRow): CalendarEvent {
     startAt: row.start_at,
     endAt: row.end_at,
     location: row.location,
+    coverageStatus: row.coverage_status,
+    assignees,
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

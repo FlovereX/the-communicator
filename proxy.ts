@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { PASSWORD_RECOVERY_COOKIE } from "@/lib/auth-cookies";
 
-const PUBLIC_PATHS = ["/login", "/join", "/auth/confirm"];
+const PUBLIC_PATHS = ["/login", "/join", "/auth/confirm", "/forgot-password"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -52,8 +53,23 @@ export async function proxy(request: NextRequest) {
   }
 
   // /auth/confirm performs its own verifyOtp + status-aware redirect; let it run
-  // regardless of the caller's current status.
+  // regardless of the caller's current status. /reset-password must stay reachable
+  // for a valid recovery session too — password recovery is an auth operation, not
+  // newsroom authorization, so it must not be gated by profile status. It additionally
+  // requires the short-lived HttpOnly recovery marker cookie set by /auth/confirm, so a
+  // merely-logged-in session (without a real recovery link) can't land there directly.
   if (pathname === "/auth/confirm") {
+    return response;
+  }
+
+  if (pathname === "/reset-password") {
+    const hasRecoveryMarker = Boolean(request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value);
+    if (!hasRecoveryMarker) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/forgot-password";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
     return response;
   }
 

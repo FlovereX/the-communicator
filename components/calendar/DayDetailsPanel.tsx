@@ -4,12 +4,26 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/shared/Button";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatDueDate } from "@/lib/format";
+import type { CoverageStatus } from "@/lib/supabase/types";
 import type { CalendarItem } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const GROUP_LABELS: Record<"deadline" | "coverage" | "newsroom", string> = {
   deadline: "Deadlines",
   coverage: "Coverage",
   newsroom: "Newsroom",
+};
+
+const COVERAGE_STATUS_LABELS: Record<CoverageStatus, string> = {
+  unassigned: "Unassigned",
+  assigned: "Assigned",
+  covered: "Covered",
+};
+
+const COVERAGE_STATUS_STYLES: Record<CoverageStatus, string> = {
+  unassigned: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  assigned: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
+  covered: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
 };
 
 const DAY_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
@@ -36,11 +50,13 @@ export function DayDetailsPanel({
   dateKey,
   items,
   isStaff,
+  onSelectEvent,
   onEditEvent,
 }: {
   dateKey: string;
   items: CalendarItem[];
   isStaff: boolean;
+  onSelectEvent: (eventId: string) => void;
   onEditEvent: (eventId: string) => void;
 }) {
   const router = useRouter();
@@ -75,7 +91,7 @@ export function DayDetailsPanel({
                       <button
                         type="button"
                         onClick={() => router.push(`/stories/${item.storyId}`)}
-                        className="flex w-full flex-col gap-1 rounded-lg border border-border px-3 py-2.5 text-left hover:bg-background/60"
+                        className="flex w-full cursor-pointer flex-col gap-1 rounded-lg border border-border px-3 py-2.5 text-left transition-colors hover:bg-background/60 focus:outline-none focus-visible:bg-background/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy"
                       >
                         <span className="text-sm font-medium text-foreground">{item.title}</span>
                         <span className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
@@ -89,26 +105,47 @@ export function DayDetailsPanel({
                   ) : (
                     <li
                       key={item.id}
-                      className="flex flex-col gap-1.5 rounded-lg border border-border px-3 py-2.5"
+                      className="flex items-start justify-between gap-2 rounded-lg border border-border px-3 py-2.5"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-sm font-medium text-foreground">{item.title}</span>
-                        {isStaff ? (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => onEditEvent(item.eventId)}
-                          >
-                            Edit
-                          </Button>
+                      <button
+                        type="button"
+                        onClick={() => onSelectEvent(item.eventId)}
+                        className="-mx-1 -my-0.5 flex min-w-0 flex-1 cursor-pointer flex-col gap-1.5 rounded-md px-1 py-0.5 text-left transition-colors hover:bg-background/60 focus:outline-none focus-visible:bg-background/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy"
+                      >
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-medium text-foreground">{item.title}</span>
+                          {item.kind === "coverage" ? (
+                            <span
+                              className={cn(
+                                "inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium",
+                                COVERAGE_STATUS_STYLES[item.coverageStatus]
+                              )}
+                            >
+                              {COVERAGE_STATUS_LABELS[item.coverageStatus]}
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="text-xs text-foreground/50">
+                          {formatEventTime(item.startAt, item.endAt)}
+                          {item.location ? ` \u00b7 ${item.location}` : ""}
+                        </span>
+                        {item.kind === "coverage" && item.assignees.length > 0 ? (
+                          <span className="text-xs text-foreground/50">
+                            Assigned to {item.assignees.map((a) => a.name).join(", ")}
+                          </span>
                         ) : null}
-                      </div>
-                      <span className="text-xs text-foreground/50">
-                        {formatEventTime(item.startAt, item.endAt)}
-                        {item.location ? ` \u00b7 ${item.location}` : ""}
-                      </span>
-                      {item.description ? (
-                        <p className="text-xs text-foreground/60">{item.description}</p>
+                        {item.description ? (
+                          <p className="text-xs text-foreground/60">{item.description}</p>
+                        ) : null}
+                      </button>
+                      {isStaff ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => onEditEvent(item.eventId)}
+                        >
+                          Edit
+                        </Button>
                       ) : null}
                     </li>
                   )

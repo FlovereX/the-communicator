@@ -22,7 +22,7 @@ export function UpcomingDeadlines({ deadlines }: { deadlines: Story[] }) {
               >
                 <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-navy/5 text-navy">
                   <span className="text-[10px] font-semibold uppercase leading-none">
-                    {formatted ? formatted.split(" ")[0].slice(0, 3) : "\u2014"}
+                    {formatted ? formatted.split(" ")[0].slice(0, 3) : "-"}
                   </span>
                   <span className="text-sm font-bold leading-none">
                     {formatted ? formatted.split(" ")[1] : ""}

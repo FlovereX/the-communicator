@@ -127,6 +127,8 @@ export interface NotificationRow {
 
 export type CalendarEventType = "coverage" | "newsroom";
 
+export type CoverageStatus = "unassigned" | "assigned" | "covered";
+
 export interface CalendarEventRow {
   id: string;
   title: string;
@@ -135,9 +137,17 @@ export interface CalendarEventRow {
   start_at: string;
   end_at: string | null;
   location: string | null;
+  coverage_status: CoverageStatus;
   created_by: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface CalendarEventAssigneeRow {
+  event_id: string;
+  user_id: string;
+  assigned_by: string | null;
+  assigned_at: string;
 }
 
 

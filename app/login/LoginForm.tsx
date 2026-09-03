@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/shared/Button";
 import { Label, TextInput } from "@/components/shared/FormControls";
 import { createClient } from "@/lib/supabase/client";
@@ -62,6 +63,12 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
             required
           />
         </div>
+        <Link
+          href="/forgot-password"
+          className="-mt-2 self-start text-xs font-medium text-navy hover:underline"
+        >
+          Forgot password?
+        </Link>
         {state?.error ? (
           <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
             {state.error}

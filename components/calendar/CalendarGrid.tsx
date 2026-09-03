@@ -1,3 +1,4 @@
+import type { CoverageStatus } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import type { CalendarItem } from "@/lib/types";
 import type { MonthGridDay } from "@/lib/calendar";
@@ -8,12 +9,25 @@ const ITEM_STYLES: Record<CalendarItem["kind"], string> = {
   newsroom: "bg-navy/5 text-navy",
 };
 
+const COVERAGE_STATUS_DOT_STYLES: Record<CoverageStatus, string> = {
+  unassigned: "bg-zinc-400",
+  assigned: "bg-amber-500",
+  covered: "bg-emerald-500",
+};
+
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat("en-US", {
   month: "long",
   year: "numeric",
 });
+const EVENT_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
 const MAX_VISIBLE_ITEMS_PER_DAY = 3;
+
+/** Only events (not deadlines) carry a time — keeps the grid to title-only for deadlines. */
+function formatItemLabel(item: CalendarItem) {
+  if (item.kind === "deadline") return item.title;
+  return `${item.title} \u00b7 ${EVENT_TIME_FORMATTER.format(new Date(item.startAt))}`;
+}
 
 export function CalendarGrid({
   visibleMonth,
@@ -21,6 +35,7 @@ export function CalendarGrid({
   itemsByDate,
   selectedDateKey,
   onSelectDate,
+  onSelectEvent,
   onPrevMonth,
   onNextMonth,
   onToday,
@@ -30,6 +45,7 @@ export function CalendarGrid({
   itemsByDate: Map<string, CalendarItem[]>;
   selectedDateKey: string;
   onSelectDate: (dateKey: string) => void;
+  onSelectEvent: (eventId: string) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onToday: () => void;
@@ -81,12 +97,19 @@ export function CalendarGrid({
           const isSelected = day.dateKey === selectedDateKey;
 
           return (
-            <button
+            <div
               key={day.dateKey}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => onSelectDate(day.dateKey)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelectDate(day.dateKey);
+                }
+              }}
               className={cn(
-                "flex min-h-24 flex-col items-stretch gap-1 border-b border-r border-border px-1.5 py-1.5 text-left hover:bg-background/60",
+                "flex min-h-24 cursor-pointer flex-col items-stretch gap-1 border-b border-r border-border px-1.5 py-1.5 text-left transition-colors hover:bg-background/60 focus:outline-none focus-visible:bg-background/60 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy",
                 !day.isCurrentMonth && "bg-background/40 text-foreground/30",
                 isSelected && "ring-2 ring-inset ring-navy"
               )}
@@ -101,24 +124,51 @@ export function CalendarGrid({
                 {day.date.getDate()}
               </span>
               <div className="flex flex-col gap-0.5">
-                {visibleItems.map((item) => (
-                  <span
-                    key={item.id}
-                    className={cn(
-                      "truncate rounded px-1 py-0.5 text-[10px] font-medium",
-                      ITEM_STYLES[item.kind]
-                    )}
-                  >
-                    {item.title}
-                  </span>
-                ))}
+                {visibleItems.map((item) =>
+                  item.kind === "deadline" ? (
+                    <span
+                      key={item.id}
+                      className={cn(
+                        "truncate rounded px-1 py-0.5 text-[10px] font-medium",
+                        ITEM_STYLES[item.kind]
+                      )}
+                    >
+                      {formatItemLabel(item)}
+                    </span>
+                  ) : (
+                    <button
+                      key={item.id}
+                      type="button"
+                      title={formatItemLabel(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectEvent(item.eventId);
+                      }}
+                      className={cn(
+                        "flex cursor-pointer items-center gap-1 truncate rounded px-1 py-0.5 text-left text-[10px] font-medium transition-colors hover:ring-1 hover:ring-inset hover:ring-navy/30 focus:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-navy",
+                        ITEM_STYLES[item.kind]
+                      )}
+                    >
+                      {item.kind === "coverage" ? (
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "h-1.5 w-1.5 shrink-0 rounded-full",
+                            COVERAGE_STATUS_DOT_STYLES[item.coverageStatus]
+                          )}
+                        />
+                      ) : null}
+                      <span className="truncate">{formatItemLabel(item)}</span>
+                    </button>
+                  )
+                )}
                 {overflowCount > 0 ? (
                   <span className="text-[10px] font-medium text-foreground/40">
                     +{overflowCount} more
                   </span>
                 ) : null}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>

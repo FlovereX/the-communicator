@@ -11,7 +11,7 @@ const CONFIRM_ERROR_MESSAGES: Record<string, string> = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ redirectTo?: string; error?: string }>;
+  searchParams: Promise<{ redirectTo?: string; error?: string; password_reset?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -22,7 +22,7 @@ export default async function LoginPage({
     redirect("/dashboard");
   }
 
-  const { redirectTo, error } = await searchParams;
+  const { redirectTo, error, password_reset: passwordReset } = await searchParams;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -33,6 +33,11 @@ export default async function LoginPage({
             NEWSROOM
           </p>
         </div>
+        {passwordReset === "1" ? (
+          <p className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-400">
+            Your password has been reset. Sign in with your new password.
+          </p>
+        ) : null}
         {error ? (
           <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
             {CONFIRM_ERROR_MESSAGES[error] ?? error}

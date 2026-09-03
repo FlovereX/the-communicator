@@ -144,7 +144,7 @@ export function StoryActions({
             ) : null}
             {awaitingPublish ? (
               <span className="text-sm text-foreground/60">
-                Ready to publish — complete the WordPress Handoff below.
+                Ready to publish. Complete the WordPress Handoff below.
               </span>
             ) : null}
           </>

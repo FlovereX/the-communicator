@@ -1,4 +1,4 @@
-import type { AccountStatus, CalendarEventType, NotificationType } from "./supabase/types";
+import type { AccountStatus, CalendarEventType, CoverageStatus, NotificationType } from "./supabase/types";
 import type { NewsroomSection } from "./sections";
 
 export const STORY_STATUSES = [
@@ -145,9 +145,18 @@ export interface CalendarEvent {
   startAt: string;
   endAt: string | null;
   location: string | null;
+  /** Only meaningful when eventType === "coverage" — always present but unused for newsroom events. */
+  coverageStatus: CoverageStatus;
+  assignees: CalendarEventAssignee[];
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CalendarEventAssignee {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
 }
 
 /** Unified shape rendered by the Calendar's month grid, day panel, and upcoming list. */
@@ -171,4 +180,6 @@ export type CalendarItem =
       endAt: string | null;
       location: string | null;
       description: string | null;
+      coverageStatus: CoverageStatus;
+      assignees: CalendarEventAssignee[];
     };

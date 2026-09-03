@@ -38,6 +38,8 @@ export function deriveEventItems(events: CalendarEvent[]): CalendarItem[] {
     endAt: event.endAt,
     location: event.location,
     description: event.description,
+    coverageStatus: event.coverageStatus,
+    assignees: event.assignees,
   }));
 }
 

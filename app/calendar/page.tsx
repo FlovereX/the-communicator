@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { CalendarEventModal } from "@/components/calendar/CalendarEventModal";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { DayDetailsPanel } from "@/components/calendar/DayDetailsPanel";
+import { EventDetailsModal } from "@/components/calendar/EventDetailsModal";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
 import { useCurrentUser } from "@/lib/auth-context";
 import {
@@ -32,6 +33,7 @@ function CalendarPageContent() {
   const [selectedDateKey, setSelectedDateKey] = useState(() => toDateKey(new Date()));
   const [isAddingEvent, setIsAddingEvent] = useState(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
 
   const allItems = useMemo(
     () => [...deriveDeadlineItems(stories), ...deriveEventItems(events)],
@@ -47,6 +49,9 @@ function CalendarPageContent() {
   const editingEvent = editingEventId
     ? (events.find((event) => event.id === editingEventId) ?? undefined)
     : undefined;
+  const viewingEvent = viewingEventId
+    ? (events.find((event) => event.id === viewingEventId) ?? undefined)
+    : undefined;
 
   function changeMonth(delta: number) {
     setVisibleMonth((prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1));
@@ -56,6 +61,12 @@ function CalendarPageContent() {
     const now = new Date();
     setVisibleMonth(new Date(now.getFullYear(), now.getMonth(), 1));
     setSelectedDateKey(toDateKey(now));
+  }
+
+  function handleEditFromDetails() {
+    if (!viewingEventId) return;
+    setEditingEventId(viewingEventId);
+    setViewingEventId(null);
   }
 
   const isLoading = storiesLoading || eventsLoading;
@@ -90,6 +101,7 @@ function CalendarPageContent() {
               itemsByDate={itemsByDate}
               selectedDateKey={selectedDateKey}
               onSelectDate={setSelectedDateKey}
+              onSelectEvent={setViewingEventId}
               onPrevMonth={() => changeMonth(-1)}
               onNextMonth={() => changeMonth(1)}
               onToday={goToToday}
@@ -98,10 +110,11 @@ function CalendarPageContent() {
               dateKey={selectedDateKey}
               items={selectedDayItems}
               isStaff={isStaff}
+              onSelectEvent={setViewingEventId}
               onEditEvent={setEditingEventId}
             />
           </div>
-          <UpcomingList items={upcomingItems} />
+          <UpcomingList items={upcomingItems} onSelectEvent={setViewingEventId} />
         </div>
       )}
       {isAddingEvent ? (
@@ -109,6 +122,14 @@ function CalendarPageContent() {
       ) : null}
       {editingEvent ? (
         <CalendarEventModal event={editingEvent} onClose={() => setEditingEventId(null)} />
+      ) : null}
+      {viewingEvent ? (
+        <EventDetailsModal
+          event={viewingEvent}
+          canEdit={isStaff}
+          onClose={() => setViewingEventId(null)}
+          onEdit={handleEditFromDetails}
+        />
       ) : null}
     </div>
   );

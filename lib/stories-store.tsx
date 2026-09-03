@@ -30,6 +30,7 @@ export interface StaffProfile {
   id: string;
   name: string;
   role: ProfileRow["role"];
+  status: ProfileRow["status"];
 }
 
 export interface MediaMetadataInput {
@@ -190,14 +191,14 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
 
   // Any staff member (writer, editor, or admin) may be assigned as a story's writer.
   const writers = useMemo(
-    () => profiles.map((p) => ({ id: p.id, name: p.full_name, role: p.role })),
+    () => profiles.map((p) => ({ id: p.id, name: p.full_name, role: p.role, status: p.status })),
     [profiles]
   );
   const editors = useMemo(
     () =>
       profiles
         .filter((p) => p.role === "editor" || p.role === "admin")
-        .map((p) => ({ id: p.id, name: p.full_name, role: p.role })),
+        .map((p) => ({ id: p.id, name: p.full_name, role: p.role, status: p.status })),
     [profiles]
   );
 

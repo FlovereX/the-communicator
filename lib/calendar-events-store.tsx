@@ -11,8 +11,15 @@ import {
 } from "react";
 import { createClient } from "./supabase/client";
 import { mapCalendarEventRow } from "./supabase/mappers";
-import type { CalendarEventRow, CalendarEventType } from "./supabase/types";
-import type { CalendarEvent } from "./types";
+import { AVATAR_BUCKET, SIGNED_URL_TTL_SECONDS } from "./supabase/storage";
+import type {
+  CalendarEventAssigneeRow,
+  CalendarEventRow,
+  CalendarEventType,
+  CoverageStatus,
+  ProfileRow,
+} from "./supabase/types";
+import type { CalendarEvent, CalendarEventAssignee } from "./types";
 
 export interface CalendarEventInput {
   title: string;
@@ -21,6 +28,9 @@ export interface CalendarEventInput {
   startAt: string;
   endAt: string | null;
   location: string | null;
+  /** Omit to leave coverage assignment/status untouched (e.g. editing a newsroom event). */
+  coverageStatus?: CoverageStatus;
+  assigneeIds?: string[];
 }
 
 export type CalendarEventActionResult = { ok: true } | { ok: false; error: string };
@@ -46,15 +56,63 @@ export function CalendarEventsProvider({ children }: { children: ReactNode }) {
   const fetchEvents = useCallback(async () => {
     const supabase = createClient();
     // RLS already restricts reads to active newsroom users only.
-    const { data, error: fetchError } = await supabase
-      .from("calendar_events")
-      .select("*")
-      .order("start_at", { ascending: true })
-      .overrideTypes<CalendarEventRow[]>();
-    if (fetchError) {
-      return { ok: false as const, error: fetchError.message };
+    const [
+      { data: eventRows, error: eventsError },
+      { data: assigneeRows, error: assigneesError },
+      { data: profileRows, error: profilesError },
+    ] = await Promise.all([
+      supabase
+        .from("calendar_events")
+        .select("*")
+        .order("start_at", { ascending: true })
+        .overrideTypes<CalendarEventRow[]>(),
+      supabase.from("calendar_event_assignees").select("*").overrideTypes<CalendarEventAssigneeRow[]>(),
+      supabase.from("profiles").select("*").overrideTypes<ProfileRow[]>(),
+    ]);
+    const firstError = eventsError || assigneesError || profilesError;
+    if (firstError) {
+      return { ok: false as const, error: firstError.message };
     }
-    return { ok: true as const, events: (data ?? []).map(mapCalendarEventRow) };
+
+    const profilesById = new Map((profileRows ?? []).map((p) => [p.id, p]));
+    const assigneeList = assigneeRows ?? [];
+
+    // Only sign avatars for profiles actually assigned to a coverage event.
+    const avatarPaths = [...new Set(assigneeList.map((a) => profilesById.get(a.user_id)?.avatar_url).filter((path): path is string => Boolean(path)))];
+    let avatarUrlByPath = new Map<string, string>();
+    if (avatarPaths.length > 0) {
+      const { data: signedUrls } = await supabase.storage
+        .from(AVATAR_BUCKET)
+        .createSignedUrls(avatarPaths, SIGNED_URL_TTL_SECONDS);
+      avatarUrlByPath = new Map(
+        (signedUrls ?? [])
+          .filter((entry): entry is typeof entry & { path: string; signedUrl: string } =>
+            Boolean(!entry.error && entry.path && entry.signedUrl)
+          )
+          .map((entry) => [entry.path, entry.signedUrl])
+      );
+    }
+
+    const assigneesByEvent = new Map<string, CalendarEventAssignee[]>();
+    for (const row of assigneeList) {
+      const profile = profilesById.get(row.user_id);
+      // A deactivated/deleted profile shouldn't still read as an active assignee.
+      if (!profile || profile.status !== "active") continue;
+      const list = assigneesByEvent.get(row.event_id) ?? [];
+      list.push({
+        id: profile.id,
+        name: profile.full_name,
+        avatarUrl: profile.avatar_url ? (avatarUrlByPath.get(profile.avatar_url) ?? null) : null,
+      });
+      assigneesByEvent.set(row.event_id, list);
+    }
+
+    return {
+      ok: true as const,
+      events: (eventRows ?? []).map((row) =>
+        mapCalendarEventRow(row, assigneesByEvent.get(row.id) ?? [])
+      ),
+    };
   }, []);
 
   const refresh = useCallback(async () => {
@@ -97,7 +155,7 @@ export function CalendarEventsProvider({ children }: { children: ReactNode }) {
       refresh,
       createEvent: async (input) => {
         const supabase = createClient();
-        const { error: rpcError } = await supabase.rpc("create_calendar_event", {
+        const { data: newId, error: rpcError } = await supabase.rpc("create_calendar_event", {
           p_title: input.title,
           p_description: input.description,
           p_event_type: input.eventType,
@@ -107,6 +165,16 @@ export function CalendarEventsProvider({ children }: { children: ReactNode }) {
         });
         if (rpcError) {
           return { ok: false, error: rpcError.message };
+        }
+        if (input.coverageStatus !== undefined && newId) {
+          const { error: coverageError } = await supabase.rpc("set_calendar_event_coverage", {
+            p_event_id: newId,
+            p_coverage_status: input.coverageStatus,
+            p_assignee_ids: input.assigneeIds ?? [],
+          });
+          if (coverageError) {
+            return { ok: false, error: coverageError.message };
+          }
         }
         await refresh();
         return { ok: true };
@@ -124,6 +192,16 @@ export function CalendarEventsProvider({ children }: { children: ReactNode }) {
         });
         if (rpcError) {
           return { ok: false, error: rpcError.message };
+        }
+        if (input.coverageStatus !== undefined) {
+          const { error: coverageError } = await supabase.rpc("set_calendar_event_coverage", {
+            p_event_id: id,
+            p_coverage_status: input.coverageStatus,
+            p_assignee_ids: input.assigneeIds ?? [],
+          });
+          if (coverageError) {
+            return { ok: false, error: coverageError.message };
+          }
         }
         await refresh();
         return { ok: true };

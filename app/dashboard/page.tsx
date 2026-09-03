@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AssignmentsList } from "@/components/dashboard/AssignmentsList";
 import { PitchesList } from "@/components/dashboard/PitchesList";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
 import { UpcomingDeadlines } from "@/components/dashboard/UpcomingDeadlines";
+import { CalendarEventModal } from "@/components/calendar/CalendarEventModal";
+import { EventDetailsModal } from "@/components/calendar/EventDetailsModal";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useCurrentUser } from "@/lib/auth-context";
@@ -40,6 +42,21 @@ function DashboardContent() {
     isLoading: pitchesLoading,
     error: pitchesError,
   } = usePitches();
+
+  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const viewingEvent = viewingEventId
+    ? (events.find((event) => event.id === viewingEventId) ?? undefined)
+    : undefined;
+  const editingEvent = editingEventId
+    ? (events.find((event) => event.id === editingEventId) ?? undefined)
+    : undefined;
+
+  function handleEditFromDetails() {
+    if (!viewingEventId) return;
+    setEditingEventId(viewingEventId);
+    setViewingEventId(null);
+  }
 
   const stats = useMemo<DashboardStats>(() => {
     return {
@@ -134,6 +151,7 @@ function DashboardContent() {
               items={upcomingEvents}
               title="Calendar"
               emptyLabel="No upcoming coverage or newsroom events."
+              onSelectEvent={setViewingEventId}
             />
           </div>
 
@@ -162,6 +180,17 @@ function DashboardContent() {
           <RecentActivity activity={recentActivity} />
         </>
       )}
+      {editingEvent ? (
+        <CalendarEventModal event={editingEvent} onClose={() => setEditingEventId(null)} />
+      ) : null}
+      {viewingEvent ? (
+        <EventDetailsModal
+          event={viewingEvent}
+          canEdit={isStaff}
+          onClose={() => setViewingEventId(null)}
+          onEdit={handleEditFromDetails}
+        />
+      ) : null}
     </div>
   );
 }
