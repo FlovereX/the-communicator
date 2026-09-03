@@ -1,4 +1,10 @@
-import type { AccountStatus, CalendarEventType, CoverageStatus, NotificationType } from "./supabase/types";
+import type {
+  AccountStatus,
+  AnnouncementPriority,
+  CalendarEventType,
+  CoverageStatus,
+  NotificationType,
+} from "./supabase/types";
 import type { NewsroomSection } from "./sections";
 
 export const STORY_STATUSES = [
@@ -183,3 +189,14 @@ export type CalendarItem =
       coverageStatus: CoverageStatus;
       assignees: CalendarEventAssignee[];
     };
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  priority: AnnouncementPriority;
+  expiresAt: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -1,5 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import {
+  AnnouncementIcon,
   CalendarIcon,
   DashboardIcon,
   PitchesIcon,
@@ -19,6 +20,7 @@ export const mainNavItems: NavItem[] = [
   { label: "Stories", href: "/stories", icon: StoriesIcon },
   { label: "Pitches", href: "/pitches", icon: PitchesIcon },
   { label: "Calendar", href: "/calendar", icon: CalendarIcon },
+  { label: "Announcements", href: "/announcements", icon: AnnouncementIcon },
 ];
 
 export const editorNavItems: NavItem[] = [

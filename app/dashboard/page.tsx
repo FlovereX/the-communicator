@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AssignmentsList } from "@/components/dashboard/AssignmentsList";
+import { AnnouncementsSection } from "@/components/dashboard/AnnouncementsSection";
 import { PitchesList } from "@/components/dashboard/PitchesList";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { StatsGrid } from "@/components/dashboard/StatsGrid";
@@ -10,6 +11,7 @@ import { CalendarEventModal } from "@/components/calendar/CalendarEventModal";
 import { EventDetailsModal } from "@/components/calendar/EventDetailsModal";
 import { UpcomingList } from "@/components/calendar/UpcomingList";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { AnnouncementsProvider, useAnnouncements } from "@/lib/announcements-store";
 import { useCurrentUser } from "@/lib/auth-context";
 import { buildUpcomingItems, deriveEventItems } from "@/lib/calendar";
 import { CalendarEventsProvider, useCalendarEvents } from "@/lib/calendar-events-store";
@@ -36,6 +38,11 @@ function DashboardContent() {
 
   const { stories, isLoading: storiesLoading, error: storiesError } = useStories();
   const { events, isLoading: eventsLoading, error: eventsError } = useCalendarEvents();
+  const {
+    currentAnnouncements,
+    isLoading: announcementsLoading,
+    error: announcementsError,
+  } = useAnnouncements();
   const {
     myPitches,
     reviewQueue,
@@ -117,8 +124,8 @@ function DashboardContent() {
     return items.sort((a, b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 6);
   }, [stories]);
 
-  const isLoading = storiesLoading || eventsLoading || pitchesLoading;
-  const error = storiesError ?? eventsError ?? pitchesError;
+  const isLoading = storiesLoading || eventsLoading || pitchesLoading || announcementsLoading;
+  const error = storiesError ?? eventsError ?? pitchesError ?? announcementsError;
 
   return (
     <div className="flex flex-col gap-8">
@@ -137,6 +144,8 @@ function DashboardContent() {
         <p className="text-sm text-foreground/50">Loading dashboard…</p>
       ) : (
         <>
+          <AnnouncementsSection announcements={currentAnnouncements} />
+
           <StatsGrid stats={stats} />
 
           <AssignmentsList
@@ -199,7 +208,9 @@ export default function DashboardPage() {
   return (
     <PitchesProvider>
       <CalendarEventsProvider>
-        <DashboardContent />
+        <AnnouncementsProvider>
+          <DashboardContent />
+        </AnnouncementsProvider>
       </CalendarEventsProvider>
     </PitchesProvider>
   );

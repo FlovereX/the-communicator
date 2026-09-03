@@ -1,4 +1,5 @@
 import type {
+  AnnouncementRow,
   CalendarEventRow,
   DbPitchStatus,
   DbStoryStatus,
@@ -12,6 +13,7 @@ import type {
   StoryVersionRow,
 } from "./types";
 import type {
+  Announcement,
   CalendarEvent,
   CalendarEventAssignee,
   CurrentUser,
@@ -202,6 +204,20 @@ export function mapCalendarEventRow(
     location: row.location,
     coverageStatus: row.coverage_status,
     assignees,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/** Maps an announcements row into the UI-facing `Announcement` shape. */
+export function mapAnnouncementRow(row: AnnouncementRow): Announcement {
+  return {
+    id: row.id,
+    title: row.title,
+    body: row.body,
+    priority: row.priority,
+    expiresAt: row.expires_at,
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

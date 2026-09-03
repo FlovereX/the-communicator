@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { PASSWORD_RECOVERY_COOKIE } from "@/lib/auth-cookies";
+import { PASSWORD_RECOVERY_COOKIE, PASSWORD_SETUP_COOKIE } from "@/lib/auth-cookies";
+import { verifyPasswordSetupMarker } from "@/lib/password-setup-marker";
 
 const PUBLIC_PATHS = ["/login", "/join", "/auth/confirm", "/forgot-password"];
 
@@ -75,10 +76,34 @@ export async function proxy(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("status")
+    .select("status, must_set_password")
     .eq("id", user.id)
     .single();
   const status = profile?.status ?? "pending";
+  const mustSetPassword = profile?.must_set_password ?? false;
+
+  // /set-password is reachable only via a fresh sign-in's signed marker — never a global
+  // redirect. An invalid/missing marker or already-completed setup just falls through to
+  // the normal active/pending destinations below, so ordinary sessions are never interrupted.
+  if (pathname === "/set-password") {
+    if (status !== "active") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/pending";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+
+    const markerToken = request.cookies.get(PASSWORD_SETUP_COOKIE)?.value;
+    const markerIsValid =
+      mustSetPassword && (await verifyPasswordSetupMarker(markerToken, user.id));
+    if (!markerIsValid) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    return response;
+  }
 
   if (status === "active") {
     if (pathname === "/login" || pathname === "/join" || pathname === "/pending") {

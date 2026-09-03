@@ -23,6 +23,7 @@ export interface ProfileRow {
   full_name: string;
   role: ProfileRole;
   status: AccountStatus;
+  must_set_password: boolean;
   avatar_url: string | null;
   created_at: string;
 }
@@ -150,4 +151,16 @@ export interface CalendarEventAssigneeRow {
   assigned_at: string;
 }
 
+export type AnnouncementPriority = "normal" | "important" | "urgent";
+
+export interface AnnouncementRow {
+  id: string;
+  title: string;
+  body: string;
+  priority: AnnouncementPriority;
+  expires_at: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
 

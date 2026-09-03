@@ -124,3 +124,13 @@ export function BellIcon(props: IconProps) {
   );
 }
 
+export function AnnouncementIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3 11v2a2 2 0 0 0 2 2h1l9 4V5l-9 4H5a2 2 0 0 0-2 2Z" />
+      <path d="M15 9.5a3.5 3.5 0 0 1 0 5" />
+      <path d="M10 15v3a2 2 0 0 0 4 0v-2" />
+    </svg>
+  );
+}
+

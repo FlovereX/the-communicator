@@ -39,6 +39,10 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    // Best-effort: recovery successfully established a password, so also complete initial
+    // setup if it was still pending. Never blocks recovery — failures here are ignored.
+    await supabase.rpc("complete_password_setup");
+
     setIsDone(true);
     await clearRecoveryMarker();
     await supabase.auth.signOut();

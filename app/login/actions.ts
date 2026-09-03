@@ -1,6 +1,9 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { PASSWORD_SETUP_COOKIE, PASSWORD_SETUP_COOKIE_MAX_AGE_SECONDS } from "@/lib/auth-cookies";
+import { createPasswordSetupMarker } from "@/lib/password-setup-marker";
 import { createClient } from "@/lib/supabase/server";
 
 export interface LoginState {
@@ -21,6 +24,31 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
 
   if (error) {
     return { error: "Invalid email or password." };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("status, must_set_password")
+      .eq("id", user.id)
+      .single();
+
+    // Non-active statuses are left to proxy.ts's existing per-request gate — unchanged.
+    if (profile?.status === "active" && profile.must_set_password) {
+      const cookieStore = await cookies();
+      cookieStore.set(PASSWORD_SETUP_COOKIE, await createPasswordSetupMarker(user.id), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: PASSWORD_SETUP_COOKIE_MAX_AGE_SECONDS,
+      });
+      redirect("/set-password");
+    }
   }
 
   redirect(redirectTo);
