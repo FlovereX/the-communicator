@@ -3,6 +3,11 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatDueDate } from "@/lib/format";
 import type { Story } from "@/lib/types";
 
+function isOverdue(story: Story) {
+  if (story.status === "Published") return false;
+  return story.dueDate < new Date().toISOString().slice(0, 10);
+}
+
 export function StoriesTable({ stories }: { stories: Story[] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
@@ -36,6 +41,11 @@ export function StoriesTable({ stories }: { stories: Story[] }) {
               </td>
               <td className="hidden px-5 py-3.5 whitespace-nowrap text-foreground/60 lg:table-cell">
                 {formatDueDate(story.dueDate)}
+                {isOverdue(story) ? (
+                  <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
+                    Overdue
+                  </span>
+                ) : null}
               </td>
               <td className="px-5 py-3.5">
                 <StatusBadge status={story.status} />

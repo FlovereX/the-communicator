@@ -10,6 +10,7 @@ export interface StoryFilters {
   status: StoryStatus | "All";
   section: string | "All";
   writer: string | "All";
+  mineOnly: boolean;
 }
 
 export function StoriesToolbar({
@@ -18,12 +19,16 @@ export function StoriesToolbar({
   sections,
   writers,
   onNewStory,
+  showMineOnlyFilter = false,
+  showNewStory = false,
 }: {
   filters: StoryFilters;
   onFiltersChange: (filters: StoryFilters) => void;
   sections: string[];
   writers: string[];
   onNewStory: () => void;
+  showMineOnlyFilter?: boolean;
+  showNewStory?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -80,11 +85,24 @@ export function StoriesToolbar({
             </option>
           ))}
         </Select>
+        {showMineOnlyFilter ? (
+          <label className="flex items-center gap-2 text-sm text-foreground/70">
+            <input
+              type="checkbox"
+              checked={filters.mineOnly}
+              onChange={(e) => onFiltersChange({ ...filters, mineOnly: e.target.checked })}
+              className="h-4 w-4 rounded border-border text-navy focus:ring-navy"
+            />
+            My Stories
+          </label>
+        ) : null}
       </div>
-      <Button variant="primary" onClick={onNewStory} className="shrink-0">
-        <PlusIcon className="h-4 w-4" />
-        New Story
-      </Button>
+      {showNewStory ? (
+        <Button variant="primary" onClick={onNewStory} className="shrink-0">
+          <PlusIcon className="h-4 w-4" />
+          New Story
+        </Button>
+      ) : null}
     </div>
   );
 }

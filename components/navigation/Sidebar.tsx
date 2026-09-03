@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/icons";
-import { currentUser } from "@/lib/mock-data";
+import { useCurrentUser } from "@/lib/auth-context";
 import { editorNavItems, mainNavItems, type NavItem } from "@/lib/navigation";
+import { signOut } from "@/lib/supabase/actions";
 import { cn } from "@/lib/utils";
 
 function Brand() {
@@ -55,7 +56,9 @@ function SidebarNav({
   pathname: string;
   onNavigate?: () => void;
 }) {
+  const currentUser = useCurrentUser();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const showEditorSection = currentUser.role !== "writer";
 
   return (
     <nav className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-3 pb-4">
@@ -69,28 +72,39 @@ function SidebarNav({
           />
         ))}
       </div>
-      <div className="flex flex-col gap-1">
-        <p className="px-3 pb-1 text-[11px] font-semibold tracking-[0.15em] text-foreground/40">
-          EDITOR
-        </p>
-        {editorNavItems.map((item) => (
-          <NavLink
-            key={item.href}
-            item={item}
-            active={isActive(item.href)}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </div>
+      {showEditorSection ? (
+        <div className="flex flex-col gap-1">
+          <p className="px-3 pb-1 text-[11px] font-semibold tracking-[0.15em] text-foreground/40">
+            EDITOR
+          </p>
+          {editorNavItems.map((item) => (
+            <NavLink
+              key={item.href}
+              item={item}
+              active={isActive(item.href)}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
+      ) : null}
     </nav>
   );
 }
 
 function SidebarFooter() {
+  const currentUser = useCurrentUser();
   return (
     <div className="shrink-0 border-t border-border px-6 py-4">
       <p className="text-sm font-semibold text-foreground">{currentUser.name}</p>
-      <p className="text-xs text-foreground/50">{currentUser.role}</p>
+      <p className="text-xs capitalize text-foreground/50">{currentUser.role}</p>
+      <form action={signOut} className="mt-3">
+        <button
+          type="submit"
+          className="text-xs font-medium text-foreground/60 hover:text-foreground hover:underline"
+        >
+          Sign Out
+        </button>
+      </form>
     </div>
   );
 }

@@ -11,21 +11,21 @@ export function SourcesSection({ story }: { story: Story }) {
   const { addSource } = useStories();
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState("");
-  const [role, setRole] = useState("");
+  const [organization, setOrganization] = useState("");
   const [url, setUrl] = useState("");
   const [notes, setNotes] = useState("");
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !role.trim()) return;
+    if (!name.trim() || !organization.trim()) return;
     addSource(story.id, {
       name: name.trim(),
-      role: role.trim(),
+      organization: organization.trim() || null,
       url: url.trim() || undefined,
       notes: notes.trim() || undefined,
     });
     setName("");
-    setRole("");
+    setOrganization("");
     setUrl("");
     setNotes("");
     setIsAdding(false);
@@ -37,7 +37,9 @@ export function SourcesSection({ story }: { story: Story }) {
         {story.sources.map((source) => (
           <div key={source.id} className="rounded-lg border border-border p-4">
             <p className="text-sm font-semibold text-foreground">{source.name}</p>
-            <p className="text-xs text-foreground/50">{source.role}</p>
+            {source.organization ? (
+              <p className="text-xs text-foreground/50">{source.organization}</p>
+            ) : null}
             {source.url ? (
               <p className="mt-1 truncate text-xs text-navy">{source.url}</p>
             ) : null}
@@ -67,11 +69,11 @@ export function SourcesSection({ story }: { story: Story }) {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="source-role">Organization / Title</Label>
+              <Label htmlFor="source-organization">Organization / Title</Label>
               <TextInput
-                id="source-role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+                id="source-organization"
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
                 required
               />
             </div>

@@ -1,158 +1,301 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { currentUser, stories as initialStories } from "./mock-data";
-import type { MediaItem, Source, Story, VersionEntry } from "./types";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import { useCurrentUser } from "./auth-context";
+import { createClient } from "./supabase/client";
+import { mapStoryRow, STATUS_TO_DB } from "./supabase/mappers";
+import type { ProfileRow, StoryFeedbackRow, StoryMediaRow, StoryRow, StorySourceRow, StoryVersionRow } from "./supabase/types";
+import type { Source, Story } from "./types";
 
 export interface NewStoryInput {
   title: string;
   section: string;
-  writer: string;
-  editor: string;
+  writerId: string;
+  editorId: string;
   dueDate: string;
   assignmentNotes?: string;
 }
 
+export interface StaffProfile {
+  id: string;
+  name: string;
+  role: ProfileRow["role"];
+}
+
 interface StoriesContextValue {
   stories: Story[];
+  writers: StaffProfile[];
+  editors: StaffProfile[];
+  isLoading: boolean;
+  error: string | null;
+  clearError: () => void;
+  refresh: () => Promise<void>;
   getStory: (id: string) => Story | undefined;
-  addStory: (input: NewStoryInput) => Story;
-  updateArticle: (id: string, updates: { title?: string; body?: string }) => void;
-  startWriting: (id: string) => void;
-  submitForReview: (id: string) => void;
-  resubmit: (id: string) => void;
-  startEditing: (id: string) => void;
-  requestRevision: (id: string, message: string) => void;
-  approveStory: (id: string) => void;
-  markPublished: (id: string) => void;
-  addSource: (id: string, source: Omit<Source, "id">) => void;
-  addMedia: (id: string, media: Omit<MediaItem, "id">) => void;
+  addStory: (input: NewStoryInput) => Promise<Story | null>;
+  updateArticle: (id: string, updates: { title?: string; body?: string }) => Promise<void>;
+  startWriting: (id: string) => Promise<void>;
+  submitForReview: (id: string) => Promise<void>;
+  resubmit: (id: string) => Promise<void>;
+  startEditing: (id: string) => Promise<void>;
+  requestRevision: (id: string, message: string) => Promise<void>;
+  approveStory: (id: string) => Promise<void>;
+  markPublished: (id: string) => Promise<void>;
+  addSource: (id: string, source: Omit<Source, "id">) => Promise<void>;
 }
 
 const StoriesContext = createContext<StoriesContextValue | null>(null);
 
-function appendVersion(story: Story, label: string): VersionEntry[] {
-  const version = story.versions.length + 1;
-  return [
-    ...story.versions,
-    { id: `${story.id}-v${version}`, version, label, timestamp: new Date().toISOString() },
-  ];
-}
-
 export function StoriesProvider({ children }: { children: ReactNode }) {
-  const [stories, setStories] = useState<Story[]>(initialStories);
+  const currentUser = useCurrentUser();
+  const [stories, setStories] = useState<Story[]>([]);
+  const [profiles, setProfiles] = useState<ProfileRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  function updateStory(id: string, updater: (story: Story) => Story) {
-    setStories((prev) => prev.map((story) => (story.id === id ? updater(story) : story)));
+  const fetchStoriesData = useCallback(async () => {
+    const supabase = createClient();
+
+    const [
+      { data: storyRows, error: storiesError },
+      { data: profileRows, error: profilesError },
+      { data: sourceRows, error: sourcesError },
+      { data: feedbackRows, error: feedbackError },
+      { data: versionRows, error: versionsError },
+      { data: mediaRows, error: mediaError },
+    ] = await Promise.all([
+      supabase
+        .from("stories")
+        .select("*")
+        .order("deadline", { ascending: true })
+        .overrideTypes<StoryRow[]>(),
+      supabase.from("profiles").select("*").overrideTypes<ProfileRow[]>(),
+      supabase.from("story_sources").select("*").overrideTypes<StorySourceRow[]>(),
+      supabase.from("story_feedback").select("*").overrideTypes<StoryFeedbackRow[]>(),
+      supabase.from("story_versions").select("*").overrideTypes<StoryVersionRow[]>(),
+      supabase.from("story_media").select("*").overrideTypes<StoryMediaRow[]>(),
+    ]);
+
+    const firstError =
+      storiesError || profilesError || sourcesError || feedbackError || versionsError || mediaError;
+    if (firstError) {
+      return { ok: false as const, error: firstError.message };
+    }
+
+    const profileList = profileRows ?? [];
+    const profilesById = new Map(profileList.map((p) => [p.id, p]));
+    const relations = {
+      sources: sourceRows ?? [],
+      feedback: feedbackRows ?? [],
+      versions: versionRows ?? [],
+      media: mediaRows ?? [],
+    };
+
+    return {
+      ok: true as const,
+      profiles: profileList,
+      stories: (storyRows ?? []).map((row) => mapStoryRow(row, profilesById, relations)),
+    };
+  }, []);
+
+  const loadAll = useCallback(async () => {
+    setError(null);
+    const result = await fetchStoriesData();
+    if (!result.ok) {
+      setError(result.error);
+      setIsLoading(false);
+      return;
+    }
+    setProfiles(result.profiles);
+    setStories(result.stories);
+    setIsLoading(false);
+  }, [fetchStoriesData]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    fetchStoriesData().then((result) => {
+      if (ignore) return;
+      if (!result.ok) {
+        setError(result.error);
+        setIsLoading(false);
+        return;
+      }
+      setProfiles(result.profiles);
+      setStories(result.stories);
+      setIsLoading(false);
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, [fetchStoriesData]);
+
+  const writers = useMemo(
+    () =>
+      profiles
+        .filter((p) => p.role === "writer")
+        .map((p) => ({ id: p.id, name: p.full_name, role: p.role })),
+    [profiles]
+  );
+  const editors = useMemo(
+    () =>
+      profiles
+        .filter((p) => p.role === "editor" || p.role === "admin")
+        .map((p) => ({ id: p.id, name: p.full_name, role: p.role })),
+    [profiles]
+  );
+
+  async function insertVersion(storyId: string, headline: string, body: string) {
+    const supabase = createClient();
+    const current = stories.find((s) => s.id === storyId);
+    const nextVersionNumber = (current?.versions.length ?? 0) + 1;
+    const { error: versionError } = await supabase.from("story_versions").insert({
+      story_id: storyId,
+      version_number: nextVersionNumber,
+      headline,
+      body,
+      created_by: currentUser.id,
+    });
+    if (versionError) {
+      setError(versionError.message);
+      return false;
+    }
+    return true;
   }
+
+  async function updateStory(id: string, fields: Record<string, unknown>) {
+    const supabase = createClient();
+    setError(null);
+    const { error: updateError } = await supabase.from("stories").update(fields).eq("id", id);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    await loadAll();
+  }
+
+  /** Submitting/resubmitting captures a headline+body snapshot as a new story_versions row. */
+  async function submit(id: string) {
+    const story = stories.find((s) => s.id === id);
+    if (!story) return;
+    const supabase = createClient();
+    setError(null);
+    const { error: updateError } = await supabase
+      .from("stories")
+      .update({ status: STATUS_TO_DB.Submitted, submitted_at: new Date().toISOString() })
+      .eq("id", id);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    const ok = await insertVersion(id, story.title, story.body);
+    if (!ok) return;
+    await loadAll();
+  }
+
 
   const value = useMemo<StoriesContextValue>(
     () => ({
       stories,
+      writers,
+      editors,
+      isLoading,
+      error,
+      clearError: () => setError(null),
+      refresh: loadAll,
       getStory: (id) => stories.find((story) => story.id === id),
-      addStory: (input) => {
-        const id = `story-${Date.now()}`;
-        const newStory: Story = {
-          id,
-          title: input.title,
-          section: input.section,
-          writer: input.writer,
-          editor: input.editor,
-          dueDate: input.dueDate,
-          status: "Assigned",
-          assignmentNotes: input.assignmentNotes,
-          body: "",
+      addStory: async (input) => {
+        const supabase = createClient();
+        setError(null);
+        const { data, error: insertError } = await supabase
+          .from("stories")
+          .insert({
+            headline: input.title,
+            section: input.section,
+            writer_id: input.writerId,
+            editor_id: input.editorId,
+            deadline: input.dueDate,
+            assignment_notes: input.assignmentNotes ?? null,
+            created_by: currentUser.id,
+            status: STATUS_TO_DB.Assigned,
+            body: "",
+          })
+          .select("*")
+          .single();
+        if (insertError || !data) {
+          setError(insertError?.message ?? "Could not create the story.");
+          return null;
+        }
+        await loadAll();
+        const profilesById = new Map(profiles.map((p) => [p.id, p]));
+        return mapStoryRow(data, profilesById, {
           sources: [],
-          media: [],
           feedback: [],
           versions: [],
-        };
-        setStories((prev) => [newStory, ...prev]);
-        return newStory;
+          media: [],
+        });
       },
-      updateArticle: (id, updates) => {
-        updateStory(id, (story) => ({
-          ...story,
-          ...updates,
-          status:
-            story.status === "Idea" || story.status === "Assigned" ? "Writing" : story.status,
-          wordCount: updates.body
-            ? updates.body.trim().split(/\s+/).filter(Boolean).length
-            : story.wordCount,
-        }));
+      updateArticle: async (id, updates) => {
+        const story = stories.find((s) => s.id === id);
+        const fields: Record<string, unknown> = {};
+        if (updates.title !== undefined) fields.headline = updates.title;
+        if (updates.body !== undefined) fields.body = updates.body;
+        if (story && (story.status === "Idea" || story.status === "Assigned")) {
+          fields.status = STATUS_TO_DB.Writing;
+        }
+        await updateStory(id, fields);
       },
-      startWriting: (id) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Writing",
-          versions: appendVersion(story, "Writing Started"),
-        }));
+      startWriting: (id) => updateStory(id, { status: STATUS_TO_DB.Writing }),
+      submitForReview: (id) => submit(id),
+      resubmit: (id) => submit(id),
+      startEditing: (id) => updateStory(id, { status: STATUS_TO_DB.Editing }),
+      requestRevision: async (id, message) => {
+        const supabase = createClient();
+        setError(null);
+        const { error: feedbackError } = await supabase
+          .from("story_feedback")
+          .insert({ story_id: id, created_by: currentUser.id, message });
+        if (feedbackError) {
+          setError(feedbackError.message);
+          return;
+        }
+        await updateStory(id, { status: STATUS_TO_DB["Needs Revision"] });
       },
-      submitForReview: (id) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Submitted",
-          versions: appendVersion(story, "Submitted"),
-        }));
-      },
-      resubmit: (id) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Submitted",
-          versions: appendVersion(story, "Resubmitted"),
-        }));
-      },
-      startEditing: (id) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Editing",
-          versions: appendVersion(story, "Editing Started"),
-        }));
-      },
-      requestRevision: (id, message) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Needs Revision",
-          feedback: [
-            ...story.feedback,
-            {
-              id: `${id}-f${story.feedback.length + 1}`,
-              editor: currentUser.name,
-              timestamp: new Date().toISOString(),
-              message,
-            },
-          ],
-          versions: appendVersion(story, "Revision Requested"),
-        }));
-      },
-      markPublished: (id) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Published",
-          versions: appendVersion(story, "Published"),
-        }));
-      },
-      approveStory: (id) => {
-        updateStory(id, (story) => ({
-          ...story,
-          status: "Approved",
-          versions: appendVersion(story, "Approved"),
-        }));
-      },
-      addSource: (id, source) => {
-        updateStory(id, (story) => ({
-          ...story,
-          sources: [...story.sources, { ...source, id: `${id}-s${story.sources.length + 1}` }],
-        }));
-      },
-      addMedia: (id, media) => {
-        updateStory(id, (story) => ({
-          ...story,
-          media: [...story.media, { ...media, id: `${id}-m${story.media.length + 1}` }],
-        }));
+      approveStory: (id) =>
+        updateStory(id, { status: STATUS_TO_DB.Approved, approved_at: new Date().toISOString() }),
+      markPublished: (id) =>
+        updateStory(id, {
+          status: STATUS_TO_DB.Published,
+          published_at: new Date().toISOString(),
+        }),
+      addSource: async (id, source) => {
+        const supabase = createClient();
+        setError(null);
+        const { error: sourceError } = await supabase.from("story_sources").insert({
+          story_id: id,
+          name: source.name,
+          organization: source.organization,
+          url: source.url ?? null,
+          notes: source.notes ?? null,
+          created_by: currentUser.id,
+        });
+        if (sourceError) {
+          setError(sourceError.message);
+          return;
+        }
+        await loadAll();
       },
     }),
-    [stories]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stories, writers, editors, isLoading, error, profiles, loadAll, currentUser.id]
   );
 
   return <StoriesContext.Provider value={value}>{children}</StoriesContext.Provider>;
@@ -165,3 +308,4 @@ export function useStories() {
   }
   return context;
 }
+

@@ -1,35 +1,44 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/shared/Button";
-import { Label, TextArea, TextInput } from "@/components/shared/FormControls";
+import { Label, Select, TextArea, TextInput } from "@/components/shared/FormControls";
 import { Modal } from "@/components/shared/Modal";
 import { useStories } from "@/lib/stories-store";
 
 export function NewStoryModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
-  const { addStory } = useStories();
+  const { addStory, writers, editors } = useStories();
   const [title, setTitle] = useState("");
   const [section, setSection] = useState("");
-  const [writer, setWriter] = useState("");
-  const [editor, setEditor] = useState("");
+  const [writerId, setWriterId] = useState("");
+  const [editorId, setEditorId] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignmentNotes, setAssignmentNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const isValid = title.trim() && section.trim() && writer.trim() && editor.trim() && dueDate;
+  const isValid = title.trim() && section.trim() && writerId && editorId && dueDate;
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValid) return;
-    const story = addStory({
+    setIsSubmitting(true);
+    setFormError(null);
+    const story = await addStory({
       title: title.trim(),
       section: section.trim(),
-      writer: writer.trim(),
-      editor: editor.trim(),
+      writerId,
+      editorId,
       dueDate,
       assignmentNotes: assignmentNotes.trim() || undefined,
     });
+    setIsSubmitting(false);
+    if (!story) {
+      setFormError("Couldn't create the story. Please try again.");
+      return;
+    }
     onClose();
     router.push(`/stories/${story.id}`);
   }
@@ -70,23 +79,35 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new-story-writer">Writer</Label>
-            <TextInput
+            <Select
               id="new-story-writer"
-              value={writer}
-              onChange={(e) => setWriter(e.target.value)}
-              placeholder="e.g. Maria Chen"
+              value={writerId}
+              onChange={(e) => setWriterId(e.target.value)}
               required
-            />
+            >
+              <option value="">Select a writer</option>
+              {writers.map((writer) => (
+                <option key={writer.id} value={writer.id}>
+                  {writer.name}
+                </option>
+              ))}
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new-story-editor">Editor</Label>
-            <TextInput
+            <Select
               id="new-story-editor"
-              value={editor}
-              onChange={(e) => setEditor(e.target.value)}
-              placeholder="e.g. Kieth Flores"
+              value={editorId}
+              onChange={(e) => setEditorId(e.target.value)}
               required
-            />
+            >
+              <option value="">Select an editor</option>
+              {editors.map((editor) => (
+                <option key={editor.id} value={editor.id}>
+                  {editor.name}
+                </option>
+              ))}
+            </Select>
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -99,15 +120,19 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
             rows={3}
           />
         </div>
+        {formError ? (
+          <p className="text-sm text-red-700">{formError}</p>
+        ) : null}
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" disabled={!isValid}>
-            Create Story
+          <Button type="submit" variant="primary" disabled={!isValid || isSubmitting}>
+            {isSubmitting ? "Creating…" : "Create Story"}
           </Button>
         </div>
       </form>
     </Modal>
   );
 }
+

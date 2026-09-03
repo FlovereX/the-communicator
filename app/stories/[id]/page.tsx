@@ -15,7 +15,7 @@ import { useStories } from "@/lib/stories-store";
 
 export default function StoryDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { getStory, updateArticle } = useStories();
+  const { getStory, updateArticle, isLoading, error } = useStories();
   const story = getStory(id);
 
   const [isEditing, setIsEditing] = useState(false);
@@ -28,6 +28,18 @@ export default function StoryDetailPage() {
     setLoadedStoryId(story.id);
     setDraftTitle(story.title);
     setDraftBody(story.body);
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+        Couldn&apos;t load this story: {error}
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <p className="py-16 text-center text-sm text-foreground/50">Loading story…</p>;
   }
 
   if (!story) {

@@ -3,13 +3,17 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import type { Story } from "@/lib/types";
 import { formatDueDate } from "@/lib/format";
 
-export function AssignmentsList({ assignments }: { assignments: Story[] }) {
+export function AssignmentsList({
+  assignments,
+  title = "My Assignments",
+}: {
+  assignments: Story[];
+  title?: string;
+}) {
   return (
     <Card>
       <div className="border-b border-border px-5 py-4">
-        <h2 className="font-serif text-lg font-semibold text-foreground">
-          My Assignments
-        </h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground">{title}</h2>
       </div>
       <ul className="divide-y divide-border">
         {assignments.map((story) => (

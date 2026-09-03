@@ -14,16 +14,17 @@ export type StoryStatus = (typeof STORY_STATUSES)[number];
 export interface Source {
   id: string;
   name: string;
-  role: string;
+  organization: string | null;
   url?: string;
   notes?: string;
 }
 
 export interface MediaItem {
   id: string;
-  caption: string;
-  credit: string;
-  alt: string;
+  filename: string;
+  caption: string | null;
+  credit: string | null;
+  altText: string | null;
 }
 
 export interface FeedbackEntry {
@@ -36,7 +37,6 @@ export interface FeedbackEntry {
 export interface VersionEntry {
   id: string;
   version: number;
-  label: string;
   timestamp: string;
 }
 
@@ -45,11 +45,12 @@ export interface Story {
   title: string;
   section: string;
   writer: string;
+  writerId: string | null;
   editor: string;
+  editorId: string | null;
   dueDate: string;
   status: StoryStatus;
   wordCount?: number;
-  issueId?: string;
   body: string;
   assignmentNotes?: string;
   sources: Source[];
@@ -93,7 +94,12 @@ export interface DashboardStats {
   approved: number;
 }
 
+export type UserRole = "writer" | "editor" | "admin";
+
 export interface CurrentUser {
+  id: string;
   name: string;
-  role: string;
+  email: string;
+  role: UserRole;
+  avatarUrl: string | null;
 }

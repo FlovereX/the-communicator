@@ -1,13 +1,15 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StoriesTable } from "@/components/stories/StoriesTable";
-import { stories } from "@/lib/mock-data";
+import { useStories } from "@/lib/stories-store";
+import type { StoryStatus } from "@/lib/types";
 
-const REVIEW_STATUSES = ["Submitted", "Editing", "Needs Revision"] as const;
+const REVIEW_STATUSES: StoryStatus[] = ["Submitted", "Editing", "Needs Revision"];
 
 export default function ReviewPage() {
-  const queue = stories.filter((story) =>
-    REVIEW_STATUSES.includes(story.status as (typeof REVIEW_STATUSES)[number])
-  );
+  const { stories, isLoading, error } = useStories();
+  const queue = stories.filter((story) => REVIEW_STATUSES.includes(story.status));
 
   return (
     <div>
@@ -15,7 +17,17 @@ export default function ReviewPage() {
         title="Review Queue"
         description="Stories submitted, in editing, or awaiting revision."
       />
-      <StoriesTable stories={queue} />
+      {error ? (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+          Couldn&apos;t load stories: {error}
+        </div>
+      ) : null}
+      {isLoading ? (
+        <p className="text-sm text-foreground/50">Loading review queue…</p>
+      ) : (
+        <StoriesTable stories={queue} />
+      )}
     </div>
   );
 }
+
