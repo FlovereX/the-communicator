@@ -138,11 +138,9 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
     };
   }, [fetchStoriesData]);
 
+  // Any staff member (writer, editor, or admin) may be assigned as a story's writer.
   const writers = useMemo(
-    () =>
-      profiles
-        .filter((p) => p.role === "writer")
-        .map((p) => ({ id: p.id, name: p.full_name, role: p.role })),
+    () => profiles.map((p) => ({ id: p.id, name: p.full_name, role: p.role })),
     [profiles]
   );
   const editors = useMemo(

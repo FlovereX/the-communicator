@@ -6,6 +6,7 @@ import { Button } from "@/components/shared/Button";
 import { Label, Select, TextArea, TextInput } from "@/components/shared/FormControls";
 import { Modal } from "@/components/shared/Modal";
 import { useStories } from "@/lib/stories-store";
+import { capitalize } from "@/lib/utils";
 
 export function NewStoryModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
@@ -83,15 +84,21 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
               id="new-story-writer"
               value={writerId}
               onChange={(e) => setWriterId(e.target.value)}
+              disabled={writers.length === 0}
               required
             >
               <option value="">Select a writer</option>
               {writers.map((writer) => (
                 <option key={writer.id} value={writer.id}>
-                  {writer.name}
+                  {writer.name} ({capitalize(writer.role)})
                 </option>
               ))}
             </Select>
+            {writers.length === 0 ? (
+              <p className="text-xs text-red-700">
+                No staff profiles are available yet. Add a profile in Supabase before creating a story.
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new-story-editor">Editor</Label>
@@ -99,15 +106,21 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
               id="new-story-editor"
               value={editorId}
               onChange={(e) => setEditorId(e.target.value)}
+              disabled={editors.length === 0}
               required
             >
               <option value="">Select an editor</option>
               {editors.map((editor) => (
                 <option key={editor.id} value={editor.id}>
-                  {editor.name}
+                  {editor.name} ({capitalize(editor.role)})
                 </option>
               ))}
             </Select>
+            {editors.length === 0 ? (
+              <p className="text-xs text-red-700">
+                No editor or admin profiles are available yet.
+              </p>
+            ) : null}
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
