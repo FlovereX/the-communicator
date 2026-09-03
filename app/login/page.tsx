@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { createClient } from "@/lib/supabase/server";
 import { LoginForm } from "./LoginForm";
 
@@ -27,10 +28,8 @@ export default async function LoginPage({
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm rounded-xl border border-border bg-surface p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <p className="text-[11px] font-semibold tracking-[0.22em] text-navy/70">
-            THE COMMUNICATOR
-          </p>
-          <p className="mt-0.5 font-serif text-xl font-bold tracking-tight text-navy">
+          <BrandLogo priority />
+          <p className="mt-2 font-serif text-xl font-bold tracking-tight text-navy">
             NEWSROOM
           </p>
         </div>

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Button } from "@/components/shared/Button";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { signOut } from "@/lib/supabase/actions";
 import { createClient } from "@/lib/supabase/server";
 
@@ -44,10 +45,8 @@ export default async function PendingPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md rounded-xl border border-border bg-surface p-8 text-center shadow-sm">
         <div className="mb-6">
-          <p className="text-[11px] font-semibold tracking-[0.22em] text-navy/70">
-            THE COMMUNICATOR
-          </p>
-          <p className="mt-0.5 font-serif text-xl font-bold tracking-tight text-navy">
+          <BrandLogo priority />
+          <p className="mt-2 font-serif text-xl font-bold tracking-tight text-navy">
             NEWSROOM
           </p>
         </div>

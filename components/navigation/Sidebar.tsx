@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -12,13 +13,22 @@ import { cn } from "@/lib/utils";
 
 function Brand() {
   return (
-    <div className="shrink-0 px-6 pt-7 pb-5">
-      <p className="text-[11px] font-semibold tracking-[0.22em] text-navy/70">
-        THE COMMUNICATOR
-      </p>
-      <p className="mt-0.5 font-serif text-xl font-bold tracking-tight text-navy">
-        NEWSROOM
-      </p>
+    <div className="flex shrink-0 items-center gap-3 px-6 pt-7 pb-5">
+      <Image
+        src="/branding/communicator-mark.png"
+        alt=""
+        width={150}
+        height={145}
+        className="h-9 w-9 shrink-0 rounded-full object-cover"
+      />
+      <div>
+        <p className="text-[11px] font-semibold tracking-[0.22em] text-navy/70">
+          THE COMMUNICATOR
+        </p>
+        <p className="mt-0.5 font-serif text-xl font-bold tracking-tight text-navy">
+          NEWSROOM
+        </p>
+      </div>
     </div>
   );
 }
@@ -146,13 +156,22 @@ export function Sidebar() {
       </aside>
 
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:hidden">
-        <div>
-          <p className="text-[10px] font-semibold tracking-[0.2em] text-navy/70">
-            THE COMMUNICATOR
-          </p>
-          <p className="font-serif text-base font-bold tracking-tight text-navy">
-            NEWSROOM
-          </p>
+        <div className="flex items-center gap-2">
+          <Image
+            src="/branding/communicator-mark.png"
+            alt=""
+            width={150}
+            height={145}
+            className="h-7 w-7 shrink-0 rounded-full object-cover"
+          />
+          <div>
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-navy/70">
+              THE COMMUNICATOR
+            </p>
+            <p className="font-serif text-base font-bold tracking-tight text-navy">
+              NEWSROOM
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <NotificationBell />
