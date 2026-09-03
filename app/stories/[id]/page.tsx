@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { Tabs } from "@/components/shared/Tabs";
 import { ArticleSection } from "@/components/stories/ArticleSection";
+import { DangerZoneSection } from "@/components/stories/DangerZoneSection";
 import { EditorFeedbackSection } from "@/components/stories/EditorFeedbackSection";
 import { MediaSection } from "@/components/stories/MediaSection";
 import { SourcesSection } from "@/components/stories/SourcesSection";
@@ -123,6 +124,7 @@ export default function StoryDetailPage() {
             : []),
         ]}
       />
+      <DangerZoneSection story={story} />
     </div>
   );
 }

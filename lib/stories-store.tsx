@@ -40,6 +40,9 @@ export interface MediaMetadataInput {
 
 export type MediaActionResult = { ok: true } | { ok: false; error: string };
 export type CreateStoryResult = { ok: true; storyId: string } | { ok: false; error: string };
+export type AdminDeleteStoryResult =
+  | { ok: true; storageCleanupWarnings?: string[] }
+  | { ok: false; error: string };
 
 interface StoriesContextValue {
   stories: Story[];
@@ -70,6 +73,7 @@ interface StoriesContextValue {
   updateMediaMetadata: (mediaId: string, updates: MediaMetadataInput) => Promise<MediaActionResult>;
   replaceMediaFile: (media: MediaItem, storyId: string, file: File) => Promise<MediaActionResult>;
   deleteMedia: (media: MediaItem) => Promise<MediaActionResult>;
+  adminDeleteStory: (id: string) => Promise<AdminDeleteStoryResult>;
 }
 
 const StoriesContext = createContext<StoriesContextValue | null>(null);
@@ -414,6 +418,31 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
         }
         await loadAll();
         return { ok: true };
+      },
+      adminDeleteStory: async (id) => {
+        const story = stories.find((s) => s.id === id);
+        const mediaPaths = story?.media.map((m) => m.storagePath) ?? [];
+
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("admin_delete_story", {
+          p_story_id: id,
+        });
+        if (rpcError) {
+          return { ok: false, error: rpcError.message };
+        }
+
+        let storageCleanupWarnings: string[] | undefined;
+        if (mediaPaths.length > 0) {
+          const { error: removeError } = await supabase.storage
+            .from(STORY_MEDIA_BUCKET)
+            .remove(mediaPaths);
+          if (removeError) {
+            storageCleanupWarnings = [removeError.message];
+          }
+        }
+
+        await loadAll();
+        return { ok: true, storageCleanupWarnings };
       },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

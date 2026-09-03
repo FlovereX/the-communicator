@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { NewStoryModal } from "@/components/stories/NewStoryModal";
 import { StoriesTable } from "@/components/stories/StoriesTable";
@@ -19,10 +20,21 @@ const DEFAULT_FILTERS: StoryFilters = {
 
 export default function StoriesPage() {
   const currentUser = useCurrentUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { stories, isLoading, error, clearError } = useStories();
   const [filters, setFilters] = useState<StoryFilters>(DEFAULT_FILTERS);
   const [isNewStoryOpen, setIsNewStoryOpen] = useState(false);
+  const [isDeleteBannerDismissed, setIsDeleteBannerDismissed] = useState(false);
   const canCreateStory = currentUser.role !== "writer";
+
+  const showDeleteBanner = searchParams.get("deleted") === "1" && !isDeleteBannerDismissed;
+  const hasStorageWarning = searchParams.get("storage_warning") === "1";
+
+  function dismissDeleteBanner() {
+    setIsDeleteBannerDismissed(true);
+    router.replace("/stories");
+  }
 
   const writers = useMemo(
     () => [...new Set(stories.map((story) => story.writer))].sort(),
@@ -47,6 +59,22 @@ export default function StoriesPage() {
         title="Stories"
         description="Manage articles across The Communicator newsroom."
       />
+      {showDeleteBanner ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+          <span>
+            {hasStorageWarning
+              ? "Story deleted, but some uploaded media could not be removed from storage."
+              : "Story deleted."}
+          </span>
+          <button
+            type="button"
+            onClick={dismissDeleteBanner}
+            className="font-medium underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
       {error ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
           <span>Couldn&apos;t load stories: {error}</span>
