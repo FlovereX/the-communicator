@@ -105,9 +105,12 @@ export function mapStoryRow(
     .map((m) => ({
       id: m.id,
       filename: m.filename,
+      storagePath: m.storage_path,
       caption: m.caption,
       credit: m.credit,
       altText: m.alt_text,
+      mimeType: m.mime_type,
+      createdAt: m.created_at,
     }));
 
   return {

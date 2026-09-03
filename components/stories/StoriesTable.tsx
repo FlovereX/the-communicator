@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatDueDate } from "@/lib/format";
@@ -8,7 +11,17 @@ function isOverdue(story: Story) {
   return story.dueDate < new Date().toISOString().slice(0, 10);
 }
 
+// Clicking one of these (or a descendant of one) should not also trigger row navigation.
+const INTERACTIVE_SELECTOR = 'a, button, input, select, textarea, [role="button"]';
+
 export function StoriesTable({ stories }: { stories: Story[] }) {
+  const router = useRouter();
+
+  function handleRowClick(event: React.MouseEvent<HTMLTableRowElement>, storyId: string) {
+    if ((event.target as HTMLElement).closest(INTERACTIVE_SELECTOR)) return;
+    router.push(`/stories/${storyId}`);
+  }
+
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
       <table className="w-full text-left text-sm">
@@ -24,12 +37,13 @@ export function StoriesTable({ stories }: { stories: Story[] }) {
         </thead>
         <tbody className="divide-y divide-border">
           {stories.map((story) => (
-            <tr key={story.id} className="group relative cursor-pointer hover:bg-background/60">
+            <tr
+              key={story.id}
+              onClick={(event) => handleRowClick(event, story.id)}
+              className="group cursor-pointer hover:bg-background/60"
+            >
               <td className="px-5 py-3.5 font-medium text-foreground">
-                <Link
-                  href={`/stories/${story.id}`}
-                  className="after:absolute after:inset-0 group-hover:underline"
-                >
+                <Link href={`/stories/${story.id}`} className="group-hover:underline">
                   {story.title}
                 </Link>
               </td>

@@ -24,7 +24,7 @@ export function StoriesToolbar({
 }: {
   filters: StoryFilters;
   onFiltersChange: (filters: StoryFilters) => void;
-  sections: string[];
+  sections: readonly string[];
   writers: string[];
   onNewStory: () => void;
   showMineOnlyFilter?: boolean;

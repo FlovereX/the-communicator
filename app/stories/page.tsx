@@ -6,6 +6,7 @@ import { NewStoryModal } from "@/components/stories/NewStoryModal";
 import { StoriesTable } from "@/components/stories/StoriesTable";
 import { StoriesToolbar, type StoryFilters } from "@/components/stories/StoriesToolbar";
 import { useCurrentUser } from "@/lib/auth-context";
+import { NEWSROOM_SECTIONS } from "@/lib/sections";
 import { useStories } from "@/lib/stories-store";
 
 const DEFAULT_FILTERS: StoryFilters = {
@@ -23,10 +24,6 @@ export default function StoriesPage() {
   const [isNewStoryOpen, setIsNewStoryOpen] = useState(false);
   const canCreateStory = currentUser.role !== "writer";
 
-  const sections = useMemo(
-    () => [...new Set(stories.map((story) => story.section))].sort(),
-    [stories]
-  );
   const writers = useMemo(
     () => [...new Set(stories.map((story) => story.writer))].sort(),
     [stories]
@@ -61,7 +58,7 @@ export default function StoriesPage() {
       <StoriesToolbar
         filters={filters}
         onFiltersChange={setFilters}
-        sections={sections}
+        sections={NEWSROOM_SECTIONS}
         writers={writers}
         onNewStory={() => setIsNewStoryOpen(true)}
         showMineOnlyFilter={canCreateStory}

@@ -30,7 +30,7 @@ export default function StoryDetailPage() {
     setDraftBody(story.body);
   }
 
-  if (error) {
+  if (error && !story) {
     return (
       <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
         Couldn&apos;t load this story: {error}

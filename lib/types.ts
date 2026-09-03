@@ -1,3 +1,5 @@
+import type { NewsroomSection } from "./sections";
+
 export const STORY_STATUSES = [
   "Idea",
   "Assigned",
@@ -22,9 +24,12 @@ export interface Source {
 export interface MediaItem {
   id: string;
   filename: string;
+  storagePath: string;
   caption: string | null;
   credit: string | null;
   altText: string | null;
+  mimeType: string | null;
+  createdAt: string;
 }
 
 export interface FeedbackEntry {
@@ -63,7 +68,7 @@ export interface Story {
 export interface Pitch {
   id: string;
   title: string;
-  section: string;
+  section: NewsroomSection;
   submittedBy: string;
   submittedDate: string;
   status: "Pending" | "Approved" | "Rejected";

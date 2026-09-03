@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/shared/Button";
 import { Label, Select, TextArea, TextInput } from "@/components/shared/FormControls";
 import { Modal } from "@/components/shared/Modal";
+import { NEWSROOM_SECTIONS, type NewsroomSection } from "@/lib/sections";
 import { useStories } from "@/lib/stories-store";
 import { capitalize } from "@/lib/utils";
 
@@ -12,7 +13,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const { addStory, writers, editors } = useStories();
   const [title, setTitle] = useState("");
-  const [section, setSection] = useState("");
+  const [section, setSection] = useState<NewsroomSection | "">("");
   const [writerId, setWriterId] = useState("");
   const [editorId, setEditorId] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -20,28 +21,33 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const isValid = title.trim() && section.trim() && writerId && editorId && dueDate;
+  const isValid = title.trim() && section && writerId && editorId && dueDate;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValid) return;
+    if (!section) return;
     setIsSubmitting(true);
     setFormError(null);
-    const story = await addStory({
+    const result = await addStory({
       title: title.trim(),
-      section: section.trim(),
+      section,
       writerId,
       editorId,
       dueDate,
       assignmentNotes: assignmentNotes.trim() || undefined,
     });
     setIsSubmitting(false);
-    if (!story) {
-      setFormError("Couldn't create the story. Please try again.");
+    if (!result.ok) {
+      setFormError(result.error);
       return;
     }
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Created story ID:", result.storyId);
+      console.log("Navigating to:", `/stories/${result.storyId}`);
+    }
     onClose();
-    router.push(`/stories/${story.id}`);
+    router.push(`/stories/${result.storyId}`);
   }
 
   return (
@@ -60,13 +66,19 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new-story-section">Section</Label>
-            <TextInput
+            <Select
               id="new-story-section"
               value={section}
-              onChange={(e) => setSection(e.target.value)}
-              placeholder="e.g. Campus"
+              onChange={(e) => setSection(e.target.value as NewsroomSection)}
               required
-            />
+            >
+              <option value="">Select a section</option>
+              {NEWSROOM_SECTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Select>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new-story-due">Deadline</Label>
