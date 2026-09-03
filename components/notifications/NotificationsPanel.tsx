@@ -69,7 +69,7 @@ export function NotificationsPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       {error ? (
-        <p className="border-b border-border bg-red-50 px-4 py-2 text-xs text-red-700">{error}</p>
+        <p className="border-b border-border bg-red-50 px-4 py-2 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-400">{error}</p>
       ) : null}
 
       <div className="max-h-96 overflow-y-auto">

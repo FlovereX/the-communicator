@@ -97,7 +97,7 @@ export function NewPitchModal({ onClose }: { onClose: () => void }) {
             placeholder="Optional"
           />
         </div>
-        {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
+        {formError ? <p className="text-sm text-red-700 dark:text-red-400">{formError}</p> : null}
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel

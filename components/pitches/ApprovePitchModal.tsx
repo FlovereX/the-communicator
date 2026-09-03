@@ -65,7 +65,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
             ))}
           </Select>
           {editors.length === 0 ? (
-            <p className="text-xs text-red-700">No editor or admin profiles are available yet.</p>
+            <p className="text-xs text-red-700 dark:text-red-400">No editor or admin profiles are available yet.</p>
           ) : null}
         </div>
         <div className="flex flex-col gap-1.5">
@@ -88,7 +88,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
             placeholder="Optional"
           />
         </div>
-        {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
+        {formError ? <p className="text-sm text-red-700 dark:text-red-400">{formError}</p> : null}
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel

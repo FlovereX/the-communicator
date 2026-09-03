@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { CloseIcon, MenuIcon } from "@/components/icons";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { Avatar } from "@/components/shared/Avatar";
 import { useCurrentUser } from "@/lib/auth-context";
 import { adminNavItems, editorNavItems, mainNavItems, type NavItem } from "@/lib/navigation";
 import { signOut } from "@/lib/supabase/actions";
@@ -122,16 +123,29 @@ function SidebarFooter() {
   const currentUser = useCurrentUser();
   return (
     <div className="shrink-0 border-t border-border px-6 py-4">
-      <p className="text-sm font-semibold text-foreground">{currentUser.name}</p>
-      <p className="text-xs capitalize text-foreground/50">{currentUser.role}</p>
-      <form action={signOut} className="mt-3">
-        <button
-          type="submit"
+      <div className="flex items-center gap-3">
+        <Avatar name={currentUser.name} avatarUrl={currentUser.avatarUrl} size={36} />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-foreground">{currentUser.name}</p>
+          <p className="truncate text-xs text-foreground/50">{currentUser.email}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <Link
+          href="/account"
           className="text-xs font-medium text-foreground/60 hover:text-foreground hover:underline"
         >
-          Sign Out
-        </button>
-      </form>
+          Account Settings
+        </Link>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="text-xs font-medium text-foreground/60 hover:text-foreground hover:underline"
+          >
+            Sign Out
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,8 @@ const BASE =
 const VARIANTS = {
   primary: "bg-navy text-navy-foreground hover:bg-navy/90",
   secondary: "border border-border bg-surface text-foreground hover:bg-background",
-  danger: "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100",
+  danger:
+    "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-950/70",
   ghost: "text-foreground/70 hover:bg-navy/5 hover:text-foreground",
 } as const;
 

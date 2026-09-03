@@ -53,7 +53,7 @@ function ReviewItem({ pitch }: { pitch: Pitch }) {
           </p>
         ) : null}
       </div>
-      {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="mt-3 text-sm text-red-700 dark:text-red-400">{error}</p> : null}
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Button variant="primary" onClick={() => setIsApproving(true)}>
           Approve

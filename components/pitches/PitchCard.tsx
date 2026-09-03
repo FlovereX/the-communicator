@@ -17,11 +17,11 @@ export function PitchCard({ pitch }: { pitch: Pitch }) {
       </div>
       <p className="mt-3 text-sm text-foreground/70">{pitch.summary}</p>
       {pitch.status === "Rejected" && pitch.editorFeedback ? (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-red-700/80">
+        <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm dark:border-red-900/60 dark:bg-red-950/40">
+          <p className="text-xs font-semibold uppercase tracking-wide text-red-700/80 dark:text-red-400/80">
             Editor feedback
           </p>
-          <p className="mt-1 text-red-700">{pitch.editorFeedback}</p>
+          <p className="mt-1 text-red-700 dark:text-red-400">{pitch.editorFeedback}</p>
         </div>
       ) : null}
       {pitch.status === "Approved" && pitch.storyId ? (

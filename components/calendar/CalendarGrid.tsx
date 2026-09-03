@@ -3,8 +3,8 @@ import type { CalendarItem } from "@/lib/types";
 import type { MonthGridDay } from "@/lib/calendar";
 
 const ITEM_STYLES: Record<CalendarItem["kind"], string> = {
-  deadline: "bg-amber-50 text-amber-700",
-  coverage: "bg-blue-50 text-blue-700",
+  deadline: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
+  coverage: "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400",
   newsroom: "bg-navy/5 text-navy",
 };
 

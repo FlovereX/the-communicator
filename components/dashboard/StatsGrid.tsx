@@ -7,9 +7,9 @@ const STAT_CONFIG: Array<{
   accent: string;
 }> = [
   { key: "activeStories", label: "Active Stories", accent: "text-navy" },
-  { key: "awaitingReview", label: "Awaiting Review", accent: "text-indigo-700" },
-  { key: "needsRevision", label: "Needs Revision", accent: "text-red-700" },
-  { key: "approved", label: "Approved", accent: "text-emerald-700" },
+  { key: "awaitingReview", label: "Awaiting Review", accent: "text-indigo-700 dark:text-indigo-400" },
+  { key: "needsRevision", label: "Needs Revision", accent: "text-red-700 dark:text-red-400" },
+  { key: "approved", label: "Approved", accent: "text-emerald-700 dark:text-emerald-400" },
 ];
 
 export function StatsGrid({ stats }: { stats: DashboardStats }) {

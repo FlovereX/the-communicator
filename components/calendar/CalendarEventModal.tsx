@@ -87,7 +87,7 @@ export function CalendarEventModal({
           <p className="text-sm text-foreground">
             Delete &ldquo;{event?.title}&rdquo;? This cannot be undone.
           </p>
-          {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
+          {formError ? <p className="text-sm text-red-700 dark:text-red-400">{formError}</p> : null}
           <div className="flex justify-end gap-2">
             <Button
               type="button"
@@ -176,7 +176,7 @@ export function CalendarEventModal({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-          {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
+          {formError ? <p className="text-sm text-red-700 dark:text-red-400">{formError}</p> : null}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
             <div>
               {isEditing ? (

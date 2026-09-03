@@ -103,7 +103,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
               ))}
             </Select>
             {writers.length === 0 ? (
-              <p className="text-xs text-red-700">
+              <p className="text-xs text-red-700 dark:text-red-400">
                 No staff profiles are available yet. Add a profile in Supabase before creating a story.
               </p>
             ) : null}
@@ -125,7 +125,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
               ))}
             </Select>
             {editors.length === 0 ? (
-              <p className="text-xs text-red-700">
+              <p className="text-xs text-red-700 dark:text-red-400">
                 No editor or admin profiles are available yet.
               </p>
             ) : null}
@@ -142,7 +142,7 @@ export function NewStoryModal({ onClose }: { onClose: () => void }) {
           />
         </div>
         {formError ? (
-          <p className="text-sm text-red-700">{formError}</p>
+          <p className="text-sm text-red-700 dark:text-red-400">{formError}</p>
         ) : null}
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="ghost" onClick={onClose}>

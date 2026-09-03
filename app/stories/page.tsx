@@ -60,7 +60,7 @@ export default function StoriesPage() {
         description="Manage articles across The Communicator newsroom."
       />
       {showDeleteBanner ? (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-400">
           <span>
             {hasStorageWarning
               ? "Story deleted, but some uploaded media could not be removed from storage."
@@ -76,7 +76,7 @@ export default function StoriesPage() {
         </div>
       ) : null}
       {error ? (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
           <span>Couldn&apos;t load stories: {error}</span>
           <button type="button" onClick={clearError} className="font-medium underline">
             Dismiss

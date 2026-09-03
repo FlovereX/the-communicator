@@ -59,14 +59,15 @@ function countWords(body: string | null) {
   return count || undefined;
 }
 
-export function mapProfileToCurrentUser(profile: ProfileRow): CurrentUser {
+export function mapProfileToCurrentUser(profile: ProfileRow, avatarSignedUrl: string | null = null): CurrentUser {
   return {
     id: profile.id,
     name: profile.full_name,
     email: profile.email,
     role: profile.role,
     status: profile.status,
-    avatarUrl: profile.avatar_url,
+    avatarUrl: avatarSignedUrl,
+    avatarPath: profile.avatar_url,
   };
 }
 

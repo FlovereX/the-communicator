@@ -111,7 +111,10 @@ export interface CurrentUser {
   email: string;
   role: UserRole;
   status: AccountStatus;
+  /** Resolved signed URL for display — never the raw private Storage path. */
   avatarUrl: string | null;
+  /** Raw storage path (profiles.avatar_url), needed only for replace/remove operations. */
+  avatarPath: string | null;
 }
 
 export interface Notification {

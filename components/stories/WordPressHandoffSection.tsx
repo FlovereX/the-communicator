@@ -58,16 +58,16 @@ export function WordPressHandoffSection({ story }: { story: Story }) {
   return (
     <div className="flex flex-col gap-6">
       {isPublished ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
             Published
           </p>
           {story.publishedAt ? (
-            <p className="mt-1 text-sm text-emerald-800">{formatRelativeTime(story.publishedAt)}</p>
+            <p className="mt-1 text-sm text-emerald-800 dark:text-emerald-300">{formatRelativeTime(story.publishedAt)}</p>
           ) : null}
           {story.publishedUrl ? (
             <>
-              <p className="mt-2 truncate text-xs text-emerald-800">{story.publishedUrl}</p>
+              <p className="mt-2 truncate text-xs text-emerald-800 dark:text-emerald-300">{story.publishedUrl}</p>
               <a
                 href={story.publishedUrl}
                 target="_blank"
@@ -167,7 +167,7 @@ export function WordPressHandoffSection({ story }: { story: Story }) {
                 required
               />
             </div>
-            {error ? <p className="text-sm text-red-700">{error}</p> : null}
+            {error ? <p className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
             <div className="flex justify-end">
               <Button type="submit" variant="primary" disabled={!publishedUrl.trim() || isSubmitting}>
                 {isSubmitting ? "Publishing…" : "Mark Published"}

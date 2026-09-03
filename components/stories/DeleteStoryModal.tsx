@@ -48,7 +48,7 @@ export function DeleteStoryModal({ story, onClose }: { story: Story; onClose: ()
           <li>Uploaded newsroom media</li>
         </ul>
         {story.status === "Published" ? (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-400">
             This only removes the newsroom record. It does not delete the published article from
             WordPress.
           </p>
@@ -65,7 +65,7 @@ export function DeleteStoryModal({ story, onClose }: { story: Story; onClose: ()
             autoComplete="off"
           />
         </div>
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        {error ? <p className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
         <div className="flex justify-end gap-2 pt-1">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isDeleting}>
             Cancel

@@ -125,7 +125,7 @@ function UploadForm({ story }: { story: Story }) {
           <TextInput id="media-alt" value={altText} onChange={(e) => setAltText(e.target.value)} />
         </div>
       </div>
-      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {error ? <p className="text-sm text-red-700 dark:text-red-400">{error}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" variant="primary" disabled={isUploading || !file}>
           {isUploading ? "Uploading…" : "Upload Media"}
@@ -238,7 +238,7 @@ function MediaItemCard({
                 />
               </div>
             </div>
-            {actionError ? <p className="text-sm text-red-700">{actionError}</p> : null}
+            {actionError ? <p className="text-sm text-red-700 dark:text-red-400">{actionError}</p> : null}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <Button variant="secondary" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? "Saving…" : "Save"}

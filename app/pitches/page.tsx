@@ -29,7 +29,7 @@ export default function PitchesPage() {
         }
       />
       {error ? (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
           <span>Couldn&apos;t load pitches: {error}</span>
           <button type="button" onClick={clearError} className="font-medium underline">
             Dismiss

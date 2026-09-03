@@ -65,7 +65,7 @@ export function StoriesTable({ stories }: { stories: Story[] }) {
               <td className="hidden px-5 py-3.5 whitespace-nowrap text-foreground/60 lg:table-cell">
                 {story.dueDate ? formatDueDate(story.dueDate) : "\u2014"}
                 {isOverdue(story) ? (
-                  <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
+                  <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700 dark:bg-red-950/40 dark:text-red-400">
                     Overdue
                   </span>
                 ) : null}
