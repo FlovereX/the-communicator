@@ -59,6 +59,8 @@ export interface Story {
   wordCount?: number;
   body: string;
   assignmentNotes?: string;
+  publishedAt: string | null;
+  publishedUrl: string | null;
   sources: Source[];
   media: MediaItem[];
   feedback: FeedbackEntry[];

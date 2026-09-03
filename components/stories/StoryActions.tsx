@@ -28,7 +28,6 @@ export function StoryActions({
     startEditing,
     requestRevision,
     approveStory,
-    markPublished,
   } = useStories();
   const [isRequestingRevision, setIsRequestingRevision] = useState(false);
   const [revisionMessage, setRevisionMessage] = useState("");
@@ -47,11 +46,11 @@ export function StoryActions({
   const canStaffEdit = isStaff && story.status === "Editing";
   const canRequestRevision = isStaff && story.status === "Editing";
   const canApprove = isStaff && story.status === "Editing";
-  const canMarkPublished = isStaff && story.status === "Approved";
+  const awaitingPublish = isStaff && story.status === "Approved";
 
   const hasWriterActions = canStartWriting || canWrite || canSubmit || canResubmit || isAwaitingReview;
   const hasEditorActions =
-    canStartEditing || canStaffEdit || canRequestRevision || canApprove || canMarkPublished;
+    canStartEditing || canStaffEdit || canRequestRevision || canApprove || awaitingPublish;
 
   function handleSendRevision() {
     if (!revisionMessage.trim()) return;
@@ -143,10 +142,10 @@ export function StoryActions({
                 Approve Story
               </Button>
             ) : null}
-            {canMarkPublished ? (
-              <Button variant="primary" onClick={() => markPublished(story.id)}>
-                Mark Published
-              </Button>
+            {awaitingPublish ? (
+              <span className="text-sm text-foreground/60">
+                Ready to publish — complete the WordPress Handoff below.
+              </span>
             ) : null}
           </>
         ) : null}

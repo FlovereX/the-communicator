@@ -10,6 +10,7 @@ import { SourcesSection } from "@/components/stories/SourcesSection";
 import { StoryActions } from "@/components/stories/StoryActions";
 import { StoryHeader } from "@/components/stories/StoryHeader";
 import { VersionHistorySection } from "@/components/stories/VersionHistorySection";
+import { WordPressHandoffSection } from "@/components/stories/WordPressHandoffSection";
 import { formatRelativeTime } from "@/lib/format";
 import { useStories } from "@/lib/stories-store";
 
@@ -111,6 +112,15 @@ export default function StoryDetailPage() {
             label: "Version History",
             content: <VersionHistorySection story={story} />,
           },
+          ...(story.status === "Approved" || story.status === "Published"
+            ? [
+                {
+                  id: "publishing",
+                  label: "WordPress Handoff",
+                  content: <WordPressHandoffSection story={story} />,
+                },
+              ]
+            : []),
         ]}
       />
     </div>

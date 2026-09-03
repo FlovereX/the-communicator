@@ -137,6 +137,8 @@ export function mapStoryRow(
     wordCount: countWords(row.body),
     body: row.body ?? "",
     assignmentNotes: row.assignment_notes ?? undefined,
+    publishedAt: row.published_at,
+    publishedUrl: row.published_url,
     sources,
     media,
     feedback,

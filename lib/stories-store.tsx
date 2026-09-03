@@ -60,7 +60,7 @@ interface StoriesContextValue {
   startEditing: (id: string) => Promise<void>;
   requestRevision: (id: string, message: string) => Promise<void>;
   approveStory: (id: string) => Promise<void>;
-  markPublished: (id: string) => Promise<void>;
+  markPublished: (id: string, publishedUrl: string) => Promise<MediaActionResult>;
   addSource: (id: string, source: Omit<Source, "id">) => Promise<void>;
   uploadMedia: (
     storyId: string,
@@ -284,8 +284,17 @@ export function StoriesProvider({ children }: { children: ReactNode }) {
       approveStory: async (id) => {
         await callWorkflowRpc("approve_story", { p_story_id: id });
       },
-      markPublished: async (id) => {
-        await callWorkflowRpc("mark_published", { p_story_id: id });
+      markPublished: async (id, publishedUrl) => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("mark_published", {
+          p_story_id: id,
+          p_published_url: publishedUrl,
+        });
+        if (rpcError) {
+          return { ok: false, error: rpcError.message };
+        }
+        await loadAll();
+        return { ok: true };
       },
       addSource: async (id, source) => {
         const supabase = createClient();

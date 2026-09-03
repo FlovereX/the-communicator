@@ -41,6 +41,7 @@ export interface StoryRow {
   submitted_at: string | null;
   approved_at: string | null;
   published_at: string | null;
+  published_url: string | null;
   created_at: string;
   updated_at: string;
 }
