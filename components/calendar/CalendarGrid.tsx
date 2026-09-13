@@ -23,7 +23,7 @@ const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat("en-US", {
 const EVENT_TIME_FORMATTER = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
 const MAX_VISIBLE_ITEMS_PER_DAY = 3;
 
-/** Only events (not deadlines) carry a time — keeps the grid to title-only for deadlines. */
+/** Only events (not deadlines) carry a time - keeps the grid to title-only for deadlines. */
 function formatItemLabel(item: CalendarItem) {
   if (item.kind === "deadline") return item.title;
   return `${item.title} \u00b7 ${EVENT_TIME_FORMATTER.format(new Date(item.startAt))}`;

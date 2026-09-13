@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-/** Official masthead lockup — replaces the plain "THE COMMUNICATOR" wordmark on auth screens. */
+/** Official masthead lockup - replaces the plain "THE COMMUNICATOR" wordmark on auth screens. */
 export function BrandLogo({ priority = false }: { priority?: boolean }) {
   return (
     <div className="mx-auto w-full max-w-[260px] sm:max-w-[280px]">

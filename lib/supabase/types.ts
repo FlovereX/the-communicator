@@ -98,7 +98,7 @@ export interface PitchRow {
   summary: string;
   why_it_matters: string;
   possible_sources: string | null;
-  /** Null for pitches submitted through the public /submit form — see external_* fields instead. */
+  /** Null for pitches submitted through the public /submit form - see external_* fields instead. */
   submitted_by: string | null;
   external_name: string | null;
   external_email: string | null;

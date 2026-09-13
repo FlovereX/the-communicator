@@ -53,7 +53,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const fetchNotifications = useCallback(async () => {
     const supabase = createClient();
-    // RLS already restricts rows to the caller's own, active-only notifications —
+    // RLS already restricts rows to the caller's own, active-only notifications -
     // no manual user_id filter here.
     const { data, error: fetchError } = await supabase
       .from("notifications")

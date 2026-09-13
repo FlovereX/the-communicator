@@ -84,7 +84,7 @@ export function ProfileSection({ currentUser }: { currentUser: CurrentUser }) {
       p_avatar_path: newPath,
     });
     if (rpcError) {
-      // Roll back the upload — the profile still points at the old (or no) avatar.
+      // Roll back the upload - the profile still points at the old (or no) avatar.
       await supabase.storage.from(AVATAR_BUCKET).remove([newPath]);
       setIsUploadingAvatar(false);
       setAvatarError(rpcError.message);

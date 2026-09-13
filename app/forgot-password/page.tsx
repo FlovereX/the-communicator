@@ -24,7 +24,7 @@ export default function ForgotPasswordPage() {
       redirectTo: `${getSiteUrl()}/reset-password`,
     });
     setIsSubmitting(false);
-    // Supabase never reports "no such user" here — any error is a genuine
+    // Supabase never reports "no such user" here - any error is a genuine
     // client/network/rate-limit failure, safe to surface as-is.
     if (resetError) {
       setError(resetError.message);

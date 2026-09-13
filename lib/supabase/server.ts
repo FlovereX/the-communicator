@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 /**
  * Server-side Supabase client for use in Server Components, Server Actions, and
  * Route Handlers. Row types are applied per-query via `.overrideTypes<T>()`
- * rather than the `Database` generic — see lib/supabase/client.ts for why.
+ * rather than the `Database` generic - see lib/supabase/client.ts for why.
  */
 export async function createClient() {
   const cookieStore = await cookies();
@@ -23,7 +23,7 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Called from a Server Component render — safe to ignore since the
+            // Called from a Server Component render - safe to ignore since the
             // proxy refreshes the session cookie on every request.
           }
         },

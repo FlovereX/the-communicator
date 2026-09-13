@@ -9,7 +9,7 @@ const PRIORITY_RANK: Record<Announcement["priority"], number> = {
   normal: 2,
 };
 
-/** Callers must pass only currentAnnouncements — expired rows (visible to staff for management) must never show here. */
+/** Callers must pass only currentAnnouncements - expired rows (visible to staff for management) must never show here. */
 export function AnnouncementsSection({ announcements }: { announcements: Announcement[] }) {
   const topAnnouncements = [...announcements]
     .sort((a, b) => {

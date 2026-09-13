@@ -92,7 +92,7 @@ export function CalendarEventModal({
       input.coverageStatus = coverageStatus;
       input.assigneeIds = validAssigneeIds;
     } else if (event?.eventType === "coverage") {
-      // Switched away from coverage — clear any prior assignment state.
+      // Switched away from coverage - clear any prior assignment state.
       input.coverageStatus = "unassigned";
       input.assigneeIds = [];
     }

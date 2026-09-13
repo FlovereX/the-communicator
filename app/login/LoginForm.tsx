@@ -23,7 +23,7 @@ export function LoginForm({ redirectTo }: { redirectTo: string }) {
     setIsSendingLink(true);
     setMagicLinkError(null);
     const supabase = createClient();
-    // shouldCreateUser: false keeps this a login-only path — new accounts must go through /join.
+    // shouldCreateUser: false keeps this a login-only path - new accounts must go through /join.
     const { error } = await supabase.auth.signInWithOtp({
       email: magicEmail.trim(),
       options: {

@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       // Password recovery establishes a session but must not be routed through the
-      // newsroom profile-status check below — it's an auth operation, not newsroom access.
-      // It also never sets the password-setup marker — recovery and setup stay separate.
+      // newsroom profile-status check below - it's an auth operation, not newsroom access.
+      // It also never sets the password-setup marker - recovery and setup stay separate.
       if (type === "recovery") {
         const response = NextResponse.redirect(`${origin}/reset-password`);
         response.cookies.set(PASSWORD_RECOVERY_COOKIE, "1", {

@@ -8,7 +8,7 @@ export function toDateKey(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-/** Derives "deadline" calendar items from stories — skips Published stories and stories with no deadline set. */
+/** Derives "deadline" calendar items from stories - skips Published stories and stories with no deadline set. */
 export function deriveDeadlineItems(stories: Story[]): CalendarItem[] {
   return stories
     .filter(
@@ -60,7 +60,7 @@ export interface MonthGridDay {
   isToday: boolean;
 }
 
-/** Builds a 6-week (42-day) grid for `year`/`month` (0-indexed), starting on Sunday — all local Date math. */
+/** Builds a 6-week (42-day) grid for `year`/`month` (0-indexed), starting on Sunday - all local Date math. */
 export function buildMonthGrid(year: number, month: number): MonthGridDay[] {
   const firstOfMonth = new Date(year, month, 1);
   const startOffset = firstOfMonth.getDay();

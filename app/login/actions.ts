@@ -37,7 +37,7 @@ export async function login(_prevState: LoginState, formData: FormData): Promise
       .eq("id", user.id)
       .single();
 
-    // Non-active statuses are left to proxy.ts's existing per-request gate — unchanged.
+    // Non-active statuses are left to proxy.ts's existing per-request gate - unchanged.
     if (profile?.status === "active" && profile.must_set_password) {
       const cookieStore = await cookies();
       cookieStore.set(PASSWORD_SETUP_COOKIE, await createPasswordSetupMarker(user.id), {

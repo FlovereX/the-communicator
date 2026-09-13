@@ -76,7 +76,7 @@ export default function SubmitPage() {
           <BrandLogo priority />
           <p className="mt-2 font-serif text-xl font-bold tracking-tight text-navy">NEWSROOM</p>
           <p className="mt-3 text-sm text-foreground/60">
-            Submit a story idea from outside the newsroom — clubs, organizations, or anyone with a
+            Submit a story idea from outside the newsroom - clubs, organizations, or anyone with a
             tip. An editor will review it and follow up if we&apos;d like to run it.
           </p>
         </div>

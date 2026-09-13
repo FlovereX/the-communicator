@@ -22,7 +22,7 @@ export default function SetPasswordPage() {
   const isValid =
     newPassword.length >= 8 && confirmPassword.length > 0 && newPassword === confirmPassword;
 
-  /** Only ever called after the Auth password update has already succeeded — retries re-run only this. */
+  /** Only ever called after the Auth password update has already succeeded - retries re-run only this. */
   async function completeSetup() {
     const supabase = createClient();
     const { error: rpcError } = await supabase.rpc("complete_password_setup");
@@ -43,7 +43,7 @@ export default function SetPasswordPage() {
     setError(null);
 
     const supabase = createClient();
-    // No current password required — the freshly-authenticated session is the authorization.
+    // No current password required - the freshly-authenticated session is the authorization.
     const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
     if (updateError) {
       setIsSubmitting(false);
@@ -74,7 +74,7 @@ export default function SetPasswordPage() {
               Your password was saved
             </p>
             <p className="text-sm text-foreground/60">
-              We couldn&apos;t finish setting up your account. You can try again safely — you
+              We couldn&apos;t finish setting up your account. You can try again safely - you
               won&apos;t need to re-enter your password.
             </p>
             {error ? (

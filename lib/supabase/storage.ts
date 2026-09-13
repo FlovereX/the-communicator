@@ -48,7 +48,7 @@ export function buildStoragePath(storyId: string, filename: string) {
   return `stories/${storyId}/${crypto.randomUUID()}-${sanitizeFilename(filename)}`;
 }
 
-/** Avatar objects live directly under the user's own folder — no "avatars/" prefix. */
+/** Avatar objects live directly under the user's own folder - no "avatars/" prefix. */
 export function buildAvatarPath(userId: string, filename: string) {
   return `${userId}/${crypto.randomUUID()}-${sanitizeFilename(filename)}`;
 }

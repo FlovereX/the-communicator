@@ -121,7 +121,7 @@ export interface CurrentUser {
   email: string;
   role: UserRole;
   status: AccountStatus;
-  /** Resolved signed URL for display — never the raw private Storage path. */
+  /** Resolved signed URL for display - never the raw private Storage path. */
   avatarUrl: string | null;
   /** Raw storage path (profiles.avatar_url), needed only for replace/remove operations. */
   avatarPath: string | null;
@@ -139,7 +139,7 @@ export interface Notification {
   createdAt: string;
 }
 
-/** Client-only — derived from StoriesProvider data, never persisted. */
+/** Client-only - derived from StoriesProvider data, never persisted. */
 export interface DeadlineReminder {
   id: string;
   storyId: string;
@@ -155,7 +155,7 @@ export interface CalendarEvent {
   startAt: string;
   endAt: string | null;
   location: string | null;
-  /** Only meaningful when eventType === "coverage" — always present but unused for newsroom events. */
+  /** Only meaningful when eventType === "coverage" - always present but unused for newsroom events. */
   coverageStatus: CoverageStatus;
   assignees: CalendarEventAssignee[];
   createdBy: string;

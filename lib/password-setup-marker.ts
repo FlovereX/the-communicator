@@ -4,7 +4,7 @@ interface PasswordSetupMarkerPayload {
   expiresAt: number;
 }
 
-/** Web Crypto only (not node:crypto) — this must run in proxy.ts's Edge runtime as well as Node Server Actions. */
+/** Web Crypto only (not node:crypto) - this must run in proxy.ts's Edge runtime as well as Node Server Actions. */
 async function getHmacKey(): Promise<CryptoKey> {
   const secret = process.env.PASSWORD_SETUP_COOKIE_SECRET;
   if (!secret) {
@@ -65,7 +65,7 @@ export async function createPasswordSetupMarker(userId: string): Promise<string>
   return `${payloadPart}.${signaturePart}`;
 }
 
-/** Verifies signature, expiration, and user binding. Never throws — any malformed/invalid token returns false. */
+/** Verifies signature, expiration, and user binding. Never throws - any malformed/invalid token returns false. */
 export async function verifyPasswordSetupMarker(
   token: string | undefined,
   expectedUserId: string

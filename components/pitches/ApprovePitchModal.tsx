@@ -21,7 +21,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
   const [formError, setFormError] = useState<string | null>(null);
 
   // Falls back to unselected if the chosen editor is no longer active (instead of
-  // trusting stale state) — matches the same pattern used in NewStoryModal.
+  // trusting stale state) - matches the same pattern used in NewStoryModal.
   const selectedEditorId = editors.some((e) => e.id === editorId) ? editorId : "";
   const editorLabels = disambiguateNames(editors);
 
@@ -43,7 +43,7 @@ export function ApprovePitchModal({ pitch, onClose }: { pitch: Pitch; onClose: (
       setFormError(result.error);
       return;
     }
-    // The pitch approval created a story in the shared stories table — refresh that
+    // The pitch approval created a story in the shared stories table - refresh that
     // context too so it shows up immediately elsewhere in the app.
     await refreshStories();
     onClose();

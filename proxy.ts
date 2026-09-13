@@ -12,7 +12,7 @@ function isPublicPath(pathname: string) {
 /**
  * Runs before every matched request: refreshes the Supabase session cookie and
  * gates unauthenticated/pending/active access across the app.
- * Named `proxy` (not `middleware`) per this project's Next.js version — see
+ * Named `proxy` (not `middleware`) per this project's Next.js version - see
  * node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md.
  */
 export async function proxy(request: NextRequest) {
@@ -55,7 +55,7 @@ export async function proxy(request: NextRequest) {
 
   // /auth/confirm performs its own verifyOtp + status-aware redirect; let it run
   // regardless of the caller's current status. /reset-password must stay reachable
-  // for a valid recovery session too — password recovery is an auth operation, not
+  // for a valid recovery session too - password recovery is an auth operation, not
   // newsroom authorization, so it must not be gated by profile status. It additionally
   // requires the short-lived HttpOnly recovery marker cookie set by /auth/confirm, so a
   // merely-logged-in session (without a real recovery link) can't land there directly.
@@ -82,7 +82,7 @@ export async function proxy(request: NextRequest) {
   const status = profile?.status ?? "pending";
   const mustSetPassword = profile?.must_set_password ?? false;
 
-  // /set-password is reachable only via a fresh sign-in's signed marker — never a global
+  // /set-password is reachable only via a fresh sign-in's signed marker - never a global
   // redirect. An invalid/missing marker or already-completed setup just falls through to
   // the normal active/pending destinations below, so ordinary sessions are never interrupted.
   if (pathname === "/set-password") {

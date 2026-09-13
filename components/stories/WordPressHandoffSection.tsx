@@ -25,7 +25,7 @@ function CopyButton({ label, getText }: { label: string; getText: () => string }
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard access denied or unavailable in this context — nothing else to do.
+      // Clipboard access denied or unavailable in this context - nothing else to do.
     }
   }
 

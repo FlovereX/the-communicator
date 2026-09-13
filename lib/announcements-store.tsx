@@ -57,7 +57,7 @@ export function AnnouncementsProvider({ children }: { children: ReactNode }) {
 
   const fetchAnnouncements = useCallback(async () => {
     const supabase = createClient();
-    // Read-only table access — RLS already scopes rows to what this user may see
+    // Read-only table access - RLS already scopes rows to what this user may see
     // (writers never receive expired rows; editors/admins receive both for management).
     const { data, error: fetchError } = await supabase
       .from("announcements")

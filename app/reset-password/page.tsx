@@ -31,7 +31,7 @@ export default function ResetPasswordPage() {
     setError(null);
 
     const supabase = createClient();
-    // The recovery session itself is the authorization here — no current password required.
+    // The recovery session itself is the authorization here - no current password required.
     const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
     if (updateError) {
       setIsSubmitting(false);
@@ -40,7 +40,7 @@ export default function ResetPasswordPage() {
     }
 
     // Best-effort: recovery successfully established a password, so also complete initial
-    // setup if it was still pending. Never blocks recovery — failures here are ignored.
+    // setup if it was still pending. Never blocks recovery - failures here are ignored.
     await supabase.rpc("complete_password_setup");
 
     setIsDone(true);
