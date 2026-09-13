@@ -84,7 +84,11 @@ export interface Pitch {
   whyItMatters: string;
   possibleSources: string | null;
   submittedBy: string;
-  submittedById: string;
+  submittedById: string | null;
+  /** True when submitted through the public /submit form (no newsroom account). */
+  isExternal: boolean;
+  externalOrganization: string | null;
+  externalEmail: string | null;
   status: PitchStatus;
   editorFeedback: string | null;
   reviewedBy: string | null;

@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { PASSWORD_RECOVERY_COOKIE, PASSWORD_SETUP_COOKIE } from "@/lib/auth-cookies";
 import { verifyPasswordSetupMarker } from "@/lib/password-setup-marker";
 
-const PUBLIC_PATHS = ["/login", "/join", "/auth/confirm", "/forgot-password"];
+const PUBLIC_PATHS = ["/login", "/join", "/auth/confirm", "/forgot-password", "/submit"];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));

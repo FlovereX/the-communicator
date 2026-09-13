@@ -35,7 +35,12 @@ function ReviewItem({ pitch }: { pitch: Pitch }) {
         <p className="font-serif text-base font-semibold text-foreground">{pitch.title}</p>
         <p className="mt-0.5 text-xs text-foreground/50">
           {pitch.section} &middot; Pitched by {pitch.submittedBy}
+          {pitch.isExternal && pitch.externalOrganization ? ` (${pitch.externalOrganization})` : ""}
+          {pitch.isExternal ? " · External submission" : ""}
         </p>
+        {pitch.isExternal && pitch.externalEmail ? (
+          <p className="mt-0.5 text-xs text-foreground/50">Contact: {pitch.externalEmail}</p>
+        ) : null}
       </div>
       <div className="mt-3 flex flex-col gap-2 text-sm text-foreground/70">
         <p>

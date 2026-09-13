@@ -163,8 +163,13 @@ export function mapPitchRow(row: PitchRow, profilesById: Map<string, ProfileRow>
     summary: row.summary,
     whyItMatters: row.why_it_matters,
     possibleSources: row.possible_sources,
-    submittedBy: profilesById.get(row.submitted_by)?.full_name ?? "Unknown",
+    submittedBy: row.submitted_by
+      ? (profilesById.get(row.submitted_by)?.full_name ?? "Unknown")
+      : (row.external_name ?? "External submitter"),
     submittedById: row.submitted_by,
+    isExternal: row.submitted_by === null,
+    externalOrganization: row.external_organization,
+    externalEmail: row.external_email,
     status: PITCH_STATUS_FROM_DB[row.status],
     editorFeedback: row.editor_feedback,
     reviewedBy: row.reviewed_by ? (profilesById.get(row.reviewed_by)?.full_name ?? null) : null,
