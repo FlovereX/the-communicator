@@ -170,6 +170,7 @@ export function mapPitchRow(row: PitchRow, profilesById: Map<string, ProfileRow>
     isExternal: row.submitted_by === null,
     externalOrganization: row.external_organization,
     externalEmail: row.external_email,
+    triagedAt: row.triaged_at,
     status: PITCH_STATUS_FROM_DB[row.status],
     editorFeedback: row.editor_feedback,
     reviewedBy: row.reviewed_by ? (profilesById.get(row.reviewed_by)?.full_name ?? null) : null,

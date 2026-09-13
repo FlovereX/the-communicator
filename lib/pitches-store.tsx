@@ -39,6 +39,8 @@ interface PitchesContextValue {
   pitches: Pitch[];
   myPitches: Pitch[];
   reviewQueue: Pitch[];
+  /** Public /submit submissions awaiting staff triage — kept separate from reviewQueue until converted. */
+  externalSubmissions: Pitch[];
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
@@ -46,6 +48,10 @@ interface PitchesContextValue {
   submitPitch: (input: NewPitchInput) => Promise<SubmitPitchResult>;
   approvePitch: (input: ApprovePitchInput) => Promise<ApprovePitchResult>;
   rejectPitch: (pitchId: string, feedback: string) => Promise<PitchActionResult>;
+  /** Moves an external submission into the normal review queue for the usual approve/reject flow. */
+  convertExternalSubmission: (pitchId: string) => Promise<PitchActionResult>;
+  /** Dismisses an external submission directly — no editor feedback required. */
+  dismissExternalSubmission: (pitchId: string) => Promise<PitchActionResult>;
 }
 
 const PitchesContext = createContext<PitchesContextValue | null>(null);
@@ -118,13 +124,22 @@ export function PitchesProvider({ children }: { children: ReactNode }) {
     () => pitches.filter((p) => p.submittedById === currentUser.id),
     [pitches, currentUser.id]
   );
-  const reviewQueue = useMemo(() => pitches.filter((p) => p.status === "Submitted"), [pitches]);
+  // Untriaged external submissions stay out of the normal queue until staff convert them.
+  const reviewQueue = useMemo(
+    () => pitches.filter((p) => p.status === "Submitted" && (!p.isExternal || p.triagedAt !== null)),
+    [pitches]
+  );
+  const externalSubmissions = useMemo(
+    () => pitches.filter((p) => p.isExternal && p.status === "Submitted" && p.triagedAt === null),
+    [pitches]
+  );
 
   const value = useMemo<PitchesContextValue>(
     () => ({
       pitches,
       myPitches,
       reviewQueue,
+      externalSubmissions,
       isLoading,
       error,
       clearError: () => setError(null),
@@ -170,8 +185,30 @@ export function PitchesProvider({ children }: { children: ReactNode }) {
         await loadAll();
         return { ok: true };
       },
+      convertExternalSubmission: async (pitchId) => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("convert_external_submission", {
+          p_pitch_id: pitchId,
+        });
+        if (rpcError) {
+          return { ok: false, error: rpcError.message };
+        }
+        await loadAll();
+        return { ok: true };
+      },
+      dismissExternalSubmission: async (pitchId) => {
+        const supabase = createClient();
+        const { error: rpcError } = await supabase.rpc("dismiss_external_submission", {
+          p_pitch_id: pitchId,
+        });
+        if (rpcError) {
+          return { ok: false, error: rpcError.message };
+        }
+        await loadAll();
+        return { ok: true };
+      },
     }),
-    [pitches, myPitches, reviewQueue, isLoading, error, loadAll]
+    [pitches, myPitches, reviewQueue, externalSubmissions, isLoading, error, loadAll]
   );
 
   return <PitchesContext.Provider value={value}>{children}</PitchesContext.Provider>;

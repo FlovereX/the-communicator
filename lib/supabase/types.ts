@@ -103,6 +103,8 @@ export interface PitchRow {
   external_name: string | null;
   external_email: string | null;
   external_organization: string | null;
+  /** Null until staff triage an external submission (convert to pitch or dismiss). Always null for staff pitches. */
+  triaged_at: string | null;
   status: DbPitchStatus;
   editor_feedback: string | null;
   reviewed_by: string | null;

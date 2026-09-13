@@ -7,12 +7,13 @@ import { PlusIcon } from "@/components/icons";
 import { NewPitchModal } from "@/components/pitches/NewPitchModal";
 import { PitchCard } from "@/components/pitches/PitchCard";
 import { PitchReviewQueue } from "@/components/pitches/PitchReviewQueue";
+import { ExternalSubmissionsQueue } from "@/components/pitches/ExternalSubmissionsQueue";
 import { useCurrentUser } from "@/lib/auth-context";
 import { usePitches } from "@/lib/pitches-store";
 
 export default function PitchesPage() {
   const currentUser = useCurrentUser();
-  const { myPitches, reviewQueue, isLoading, error, clearError } = usePitches();
+  const { myPitches, reviewQueue, externalSubmissions, isLoading, error, clearError } = usePitches();
   const [isNewPitchOpen, setIsNewPitchOpen] = useState(false);
   const isStaff = currentUser.role === "editor" || currentUser.role === "admin";
 
@@ -40,6 +41,17 @@ export default function PitchesPage() {
         <p className="text-sm text-foreground/50">Loading pitches…</p>
       ) : (
         <>
+          {isStaff ? (
+            <div className="flex flex-col gap-3">
+              <h2 className="font-serif text-lg font-semibold text-foreground">
+                External Submissions
+              </h2>
+              <p className="text-sm text-foreground/50">
+                Story ideas submitted through the public /submit form, awaiting triage.
+              </p>
+              <ExternalSubmissionsQueue pitches={externalSubmissions} />
+            </div>
+          ) : null}
           {isStaff ? (
             <div className="flex flex-col gap-3">
               <h2 className="font-serif text-lg font-semibold text-foreground">

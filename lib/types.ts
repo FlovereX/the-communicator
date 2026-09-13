@@ -89,6 +89,8 @@ export interface Pitch {
   isExternal: boolean;
   externalOrganization: string | null;
   externalEmail: string | null;
+  /** Null until staff triage an external submission (convert to pitch or dismiss). Always null for staff pitches. */
+  triagedAt: string | null;
   status: PitchStatus;
   editorFeedback: string | null;
   reviewedBy: string | null;
